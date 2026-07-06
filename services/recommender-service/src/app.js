@@ -4,11 +4,7 @@ const cron = require("node-cron");
 const { spawn } = require("child_process");
 const path = require("path");
 
-const {
-  MealPlan,
-  saveMealPlan,
-  archiveUserMealPlan,
-} = require("./recommender_Database");
+const { MealPlan, saveMealPlan, archiveUserMealPlan } = require("./db");
 
 const app = express();
 app.use(express.json());

@@ -1,12 +1,12 @@
 {
-  "name": "emergency-service",
+  "name": "medication-service",
   "version": "1.0.0",
   "description": "",
-  "main": "src/app.js.js",
+  "main": "src/app.js",
   "scripts": {
     "test": "jest",
-    "start": "node src/app.js.js",
-    "dev": "nodemon src/app.js.js"
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js"
   },
   "keywords": [],
   "author": "",

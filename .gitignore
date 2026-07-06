@@ -80,6 +80,7 @@ web_modules/
 .env.production.local
 .env.local
 
+
 secrets/
 
 # parcel-bundler cache (https://parceljs.org/)
@@ -135,4 +136,6 @@ recommender-service/*.csv
 
 # virtual environment
 .venv/
+
+events/
 

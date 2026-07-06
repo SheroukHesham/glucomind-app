@@ -27,4 +27,5 @@ COPY . .
 
 
 # Command to start the service after Kafka is ready
-CMD ["/wait-for-kafka.sh", "kafka", "node", "recommender_index.js"]
+# Dockerfile
+CMD ["/wait-for-kafka.sh", "kafka", "npm", "run", "dev"]

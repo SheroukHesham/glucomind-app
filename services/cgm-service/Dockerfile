@@ -14,4 +14,5 @@ RUN apt-get update && apt-get install -y netcat-openbsd
 
 CMD ["/wait-for-kafka.sh", "kafka", "npm", "run", "dev"]
 
-EXPOSE 4001
+EXPOSE 3000
+EXPOSE 4000
