@@ -77,7 +77,6 @@ app.get("/recommendations/:id", async (req, res) => {
 // Save the meal plan to the database
 const saveGeneratedMeal = async (userId, mealPlanData) => {
   try {
-    console.log("Saving meal plan for user:", userId);
     await saveMealPlan(userId, mealPlanData);
   } catch (err) {
     console.error("Error saving meal plan:", err);
@@ -110,9 +109,6 @@ const generate_meal = async (userId, inputData) => {
     try {
       const result = JSON.parse(output);
       if (result.status === "ok") {
-        console.log(`Meal plan generated for user `);
-        console.log("Meal plan:", result.parsed_plan);
-
         // Save the user meal plan to the recommender database
         await saveGeneratedMeal(userId, result.parsed_plan);
       } else {
@@ -146,7 +142,6 @@ const generate_meal = async (userId, inputData) => {
 
 // Schedule meal plan generation at 4 am every day
 cron.schedule("0 4 * * *", async () => {
-  console.log("Generating meal plans for all users at 4:00 AM...");
   try {
     // TODO: make it sorted by the newest users first
     const users = await getAllUsers();

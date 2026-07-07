@@ -1,5 +1,5 @@
 const express = require("express");
-require("dotenv").config({ path: "./.env.example" });
+require("dotenv").config();
 
 const app = express();
 app.use(express.json());
@@ -13,8 +13,6 @@ if (!mongoURI) {
   process.exit(1);
 }
 
-console.log("🔗 Connecting to MongoDB at", mongoURI);
-
 mongoose
   .connect(mongoURI, {
     useNewUrlParser: true,
@@ -23,9 +21,7 @@ mongoose
   .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-mongoose.connection.on("connected", () => {
-  console.log("✅ Connected to MongoDB at", mongoose.connection.host);
-});
+mongoose.connection.on("connected", () => {});
 
 // TODO: Update schema to only contain
 //  User profile and account information and token
@@ -66,7 +62,7 @@ async function saveUser(userData) {
   try {
     const user = new User(userData); // Create a new User instance
     const savedUser = await user.save(); // Save it to the DB
-    console.log("✅ User saved:", savedUser);
+
     return savedUser; // Return the saved user if needed
   } catch (error) {
     console.error("Error saving user:", error);
@@ -82,10 +78,7 @@ async function updateUser(userId, updatedData) {
       { new: true, runValidators: true }, // Return the updated user and run validators
     );
     if (updatedUser) {
-      console.log("✅ User updated:", updatedUser);
       return updatedUser; // Return the updated user if needed
-    } else {
-      console.log(" update User not found.");
     }
   } catch (error) {
     console.error("Error updating user:", error);
@@ -97,10 +90,8 @@ async function getUserById(userUid) {
   try {
     const user = await User.findById(userUid); // Find the user by ID
     if (user) {
-      console.log("✅ User found:", user);
       return user; // Return the user if found
     } else {
-      console.log(" get User not found.");
       return null; // Return null if the user doesn't exist
     }
   } catch (error) {
@@ -113,10 +104,7 @@ async function deleteUserById(userId) {
   try {
     const deletedUser = await User.findByIdAndDelete(userId); // Find and delete the user by ID
     if (deletedUser) {
-      console.log("✅ User deleted:", deletedUser);
       return deletedUser; // Return the deleted user if needed
-    } else {
-      console.log(" delete User not found.");
     }
   } catch (error) {
     console.error("Error deleting user:", error);

@@ -1,5 +1,5 @@
 const express = require("express");
-require("dotenv").config({ path: "./.env.example" });
+require("dotenv").config();
 
 const app = express();
 app.use(express.json());
@@ -13,19 +13,14 @@ if (!mongoURI) {
   process.exit(1);
 }
 
-console.log("🔗 Connecting to MongoDB at", mongoURI);
-
 mongoose
   .connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-mongoose.connection.on("connected", () => {
-  console.log("✅ Connected to MongoDB at", mongoose.connection.host);
-});
+mongoose.connection.on("connected", () => {});
 
 const itemSchema = new mongoose.Schema({
   item: String,
@@ -105,7 +100,7 @@ const saveMealPlan = async (userId, mealPlanData) => {
     });
 
     const saved = await newMealPlan.save();
-    console.log("Meal plan saved:", saved);
+
     return saved;
   } catch (err) {
     console.error("Error saving meal plan:", err);
@@ -130,7 +125,6 @@ const archiveUserMealPlan = async (userId) => {
       await oldPlan.save();
       // Remove from MealPlan
       await MealPlan.deleteOne({ _id: latestMealPlan._id });
-      console.log("Archived old meal plan for user:", userId);
     }
   } catch (err) {
     console.error("Error archiving meal plan:", err);

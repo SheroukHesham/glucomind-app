@@ -23,8 +23,6 @@ const sendMedicationEvents = async (userId, medication) => {
       messages: [{ key: "medication", value: JSON.stringify(message) }],
     });
 
-    console.log("Produced:", message);
-
     res.status(201).send("Medications produced successfully");
   } catch (error) {
     console.error("Error producing message:", error);

@@ -1,5 +1,5 @@
 const express = require("express");
-require("dotenv").config({ path: "./.env.example" });
+require("dotenv").config();
 
 const app = express();
 app.use(express.json());
@@ -13,19 +13,14 @@ if (!mongoURI) {
   process.exit(1);
 }
 
-console.log("🔗 Connecting to MongoDB at", mongoURI);
-
 mongoose
   .connect(mongoURI, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log("✅ Connected to MongoDB"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-mongoose.connection.on("connected", () => {
-  console.log("✅ Connected to MongoDB at", mongoose.connection.host);
-});
+mongoose.connection.on("connected", () => {});
 
 // CGM schema
 const cgmSchema = new mongoose.Schema({
@@ -35,10 +30,10 @@ const cgmSchema = new mongoose.Schema({
     ref: "User",
   },
   glucoseLevels: {
-    type: Number,
+    type: [Number],
   },
   trend: {
-    type: String,
+    type: [String],
     enum: ["steady", "rising", "falling", "unknown"],
   },
   timestamp: {
@@ -58,14 +53,11 @@ async function configureSensor(sensorId, userId) {
   try {
     const existingSensor = await Cgm.findOne({ sensorId }).exec();
     if (existingSensor) {
-      console.log(
-        `Sensor ${sensorId} already configured for user ${existingSensor.userId}`,
-      );
       return existingSensor.userId;
     }
     const newSensor = new Cgm({ sensorId: sensorId, userId: userId });
     await newSensor.save();
-    console.log(`Sensor ${sensorId} configured for user ${userId}`);
+
     return userId;
   } catch (error) {
     console.error("Error configuring sensor:", error);
@@ -76,9 +68,9 @@ async function configureSensor(sensorId, userId) {
 // Save CGM data
 const saveCgmData = async (userId, glucoseData, trend) => {
   try {
+    //**TODO: upsert and push new readings in arrays instead of new record */
     const cgmData = new Cgm({ userId, glucoseLevels: glucoseData, trend });
     await cgmData.save();
-    console.log("CGM data saved successfully");
   } catch (error) {
     console.error("Error saving CGM data:", error);
   }

@@ -21,7 +21,6 @@ const consume = async () => {
         // Skip empty messages
         return;
       }
-      console.log(`Consumed [${message.key?.toString()}]:`, value);
 
       const payload = JSON.parse(value);
       const user = payload.user;

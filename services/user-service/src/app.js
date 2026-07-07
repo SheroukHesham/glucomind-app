@@ -170,10 +170,8 @@ async function updateUserFcmToken(email, fcmToken) {
       { new: true },
     );
     if (!user) {
-      console.log("User not found for FCM token update.");
       return null;
     }
-    console.log("✅ FCM token updated for user:", email);
     return user;
   } catch (error) {
     console.error("Error updating FCM token:", error);

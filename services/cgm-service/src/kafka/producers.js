@@ -16,7 +16,7 @@ const produce = async (message) => {
       topic: "glucose-events",
       messages: [{ key: "glucose", value: JSON.stringify(message) }],
     });
-    console.log("Produced:", message);
+
     await producer.disconnect();
   } catch (error) {
     console.error("Error producing message:", error);

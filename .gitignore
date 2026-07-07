@@ -135,7 +135,9 @@ dist
 recommender-service/*.csv
 
 # virtual environment
+venv/
 .venv/
 
 events/
+
 

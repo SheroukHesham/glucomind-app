@@ -1,4 +1,4 @@
-require("dotenv").config({ path: "./.env.example" });
+require("dotenv").config();
 const express = require("express");
 const { Kafka } = require("kafkajs");
 const admin = require("firebase-admin");
@@ -23,7 +23,6 @@ const run = async () => {
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
       const payload = JSON.parse(message.value.toString());
-      console.log(`Received message from topic ${topic}:`, payload);
       const { userId, glucoseLevel, fcmToken, trend, criticality } = payload;
 
       if (!userId || !glucoseLevel || !fcmToken) {
@@ -75,7 +74,6 @@ const run = async () => {
 
       try {
         await admin.messaging().send(fcmMessage);
-        console.log(`✅ Notification sent to user ${userId} [${criticality}]`);
       } catch (err) {
         console.error("❌ FCM Error:", err);
       }

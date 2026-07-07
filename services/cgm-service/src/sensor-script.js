@@ -21,25 +21,20 @@ function sendGlucose(ws) {
     glucoseLevel: glucoseLevel,
   };
   ws.send(JSON.stringify(data));
-  console.log(`[${new Date().toISOString()}] Sent:`, data);
 }
 
 function startSending() {
   const ws = new WebSocket(WS_URL);
 
   ws.on("open", () => {
-    console.log("WebSocket connected.");
     sendGlucose(ws); // Send immediately
     // every 5 minutes
     setInterval(() => sendGlucose(ws), 5 * 60 * 1000);
   });
 
-  ws.on("message", (msg) => {
-    console.log("Received:", msg.toString());
-  });
+  ws.on("message", (msg) => {});
 
   ws.on("close", () => {
-    console.log("WebSocket closed. Reconnecting in 10 seconds...");
     setTimeout(startSending, 10000);
   });
 

@@ -94,9 +94,6 @@ async function getFcmTokenForUser(userId) {
     const response = await axios.get(
       `http://user-service:3001/user/${userId}/fcm-token`,
     );
-    console.log(
-      `Fetched FCM token for user ${userId}: ${response.data.fcmToken}`,
-    );
     return response.data.fcmToken;
   } catch (error) {
     console.error(
@@ -121,8 +118,6 @@ const handleGlucoseData = async (userId, glucoseValue) => {
       else trend = "steady";
     }
 
-    console.log(`📈 Glucose trend for user ${userId}: ${trend}`);
-
     // get the FCM token for the user from user-service
     const fcmToken = await getFcmTokenForUser(userId);
     if (!fcmToken) {
@@ -131,11 +126,9 @@ const handleGlucoseData = async (userId, glucoseValue) => {
       );
       return trend; // No action if no FCM token
     }
-    console.log(`🔑 FCM Token for user ${userId}: ${fcmToken}`);
 
     // Normal
     if (glucoseValue >= 80 && glucoseValue <= 140) {
-      console.log("✅ Glucose is normal. No action needed.");
       return trend;
     }
 
@@ -153,7 +146,7 @@ const handleGlucoseData = async (userId, glucoseValue) => {
         criticality: "slightly_abnormal",
       };
       await produce(message);
-      console.log("📤 Produced slightly abnormal message:", message);
+     
     }
 
     // High/Low
@@ -170,7 +163,7 @@ const handleGlucoseData = async (userId, glucoseValue) => {
         criticality: "high_low",
       };
       await produce(message);
-      console.log("📤 Produced high/low message:", message);
+
     }
 
     // Critical
@@ -184,7 +177,7 @@ const handleGlucoseData = async (userId, glucoseValue) => {
         criticality: "critical",
       };
       await produce(message);
-      console.log("📤 Produced critical message:", message);
+
     }
   } catch (error) {
     console.error("Error in handleGlucoseData:", error);
@@ -218,11 +211,7 @@ wss.on("connection", (ws) => {
         );
         return;
       }
-      console.log(
-        `Received glucose data from sensor ${sensorId} for users ${userIds.join(
-          ", ",
-        )}: ${glucoseLevel}`,
-      );
+      
       // Analyze and save the glucose data for all users
       for (const userId of userIds) {
         const trend = await handleGlucoseData(userId, glucoseLevel);

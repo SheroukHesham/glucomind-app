@@ -95,7 +95,6 @@ function sendFCM(token, title, body) {
   admin
     .messaging()
     .send(message)
-    .then((res) => console.log("Notification sent:", res))
     .catch((err) => console.error("FCM Error:", err));
 }
 
@@ -105,12 +104,10 @@ function isTimeMatch(medTime, currentTime) {
 
 // check every minute of a medication time has come
 cron.schedule("* * * * *", async () => {
-  console.log("Checking for medication reminders...");
   const now = new Date();
   const currentTime = now.toTimeString().slice(0, 5); // "HH:mm"
   const currentDay = now.getDay(); // 0 = Sunday
-  console.log(`Current time: ${currentTime}, Current day: ${currentDay}`);
-  // TODO: remove comment
+
   const users = await db.getAllUsersWithMedications();
 
   // For testing only
@@ -128,17 +125,11 @@ cron.schedule("* * * * *", async () => {
           "Medication Reminder",
           `Time to take ${med.name}`,
         );
-        console.log(
-          `Sent daily reminder for ${med.name} to user ${user.userId}`,
-        );
       } else if (med.frequency === "weekly" && med.dayOfWeek === currentDay) {
         sendFCM(
           user.fcmToken,
           "Weekly Medication Reminder",
           `Take ${med.name} today`,
-        );
-        console.log(
-          `Sent weekly reminder for ${med.name} to user ${user.userId}`,
         );
       } else if (med.frequency === "monthly") {
         const dayOfMonth = med.dayOfMonth || 1;
@@ -147,9 +138,6 @@ cron.schedule("* * * * *", async () => {
             user.fcmToken,
             "Monthly Medication Reminder",
             `Take ${med.name} today`,
-          );
-          console.log(
-            `Sent monthly reminder for ${med.name} to user ${user.userId}`,
           );
         }
       }
