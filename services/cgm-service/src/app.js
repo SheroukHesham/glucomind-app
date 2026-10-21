@@ -104,6 +104,7 @@ async function getFcmTokenForUser(userId) {
   }
 }
 
+//**TODO:  */
 //function to determine if the glucose level is critical and glucose trend
 // creates the message to be sent to emergency service
 const handleGlucoseData = async (userId, glucoseValue) => {
@@ -116,6 +117,8 @@ const handleGlucoseData = async (userId, glucoseValue) => {
       if (glucoseValue > prevValue + 5) trend = "rising";
       else if (glucoseValue < prevValue - 5) trend = "falling";
       else trend = "steady";
+    } else {
+      return "steady";
     }
 
     // get the FCM token for the user from user-service
@@ -146,7 +149,6 @@ const handleGlucoseData = async (userId, glucoseValue) => {
         criticality: "slightly_abnormal",
       };
       await produce(message);
-     
     }
 
     // High/Low
@@ -163,7 +165,6 @@ const handleGlucoseData = async (userId, glucoseValue) => {
         criticality: "high_low",
       };
       await produce(message);
-
     }
 
     // Critical
@@ -177,7 +178,6 @@ const handleGlucoseData = async (userId, glucoseValue) => {
         criticality: "critical",
       };
       await produce(message);
-
     }
   } catch (error) {
     console.error("Error in handleGlucoseData:", error);
@@ -204,19 +204,24 @@ wss.on("connection", (ws) => {
         return;
       }
       // get all userIds from sensorId
-      const userIds = await getUserIdFromSensor(sensorId);
-      if (!userIds || userIds.length === 0) {
+      const userId = await getUserIdFromSensor(sensorId);
+      if (!userId || userId.length === 0) {
         console.error(
           `No users found for sensorId: ${sensorId}. Please connect the sensor first.`,
         );
         return;
       }
-      
       // Analyze and save the glucose data for all users
-      for (const userId of userIds) {
-        const trend = await handleGlucoseData(userId, glucoseLevel);
-        await saveCgmData(userId, glucoseLevel, trend);
+
+      let trend;
+
+      try {
+        trend = await handleGlucoseData(userId, glucoseLevel);
+      } catch (err) {
+        console.error("handleGlucoseData failed:", err);
       }
+
+      await saveCgmData(userId, glucoseLevel, trend);
     } catch (error) {
       ws.send(JSON.stringify({ error: "Invalid data or server error" }));
     }
@@ -224,7 +229,6 @@ wss.on("connection", (ws) => {
 
   ws.send(JSON.stringify({ message: "WebSocket connection established" }));
 });
-
 // TODO: Remove after testing
 app.post("/glucose-reading", async (req, res) => {
   const { userId, glucoseLevel } = req.body;

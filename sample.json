@@ -1,0 +1,4 @@
+{"cgm_data": 160, "trend": "rising", "age": 45, "gender": "female",
+ "medications": [{"name": "Metformin"}], "liked_meals": ["chicken", "salad"],
+ "disliked_meals": ["fish"], "dietary_restrictions": ["gluten-free"],
+ "daily_calories": 1800, "additional_conditions": ["hypertension"]}

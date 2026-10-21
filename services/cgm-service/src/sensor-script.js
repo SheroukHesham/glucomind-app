@@ -27,9 +27,9 @@ function startSending() {
   const ws = new WebSocket(WS_URL);
 
   ws.on("open", () => {
-    sendGlucose(ws); // Send immediately
+    sendGlucose(ws);
     // every 5 minutes
-    setInterval(() => sendGlucose(ws), 5 * 60 * 1000);
+    setInterval(() => sendGlucose(ws), 10 * 60 * 1000);
   });
 
   ws.on("message", (msg) => {});

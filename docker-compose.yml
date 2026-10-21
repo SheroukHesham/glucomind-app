@@ -6,6 +6,8 @@ services:
       - "2181:2181"
     environment:
       - ALLOW_ANONYMOUS_LOGIN=yes
+    volumes:
+      - zookeeper-data:/bitnami/zookeeper
 
   kafka:
     image: bitnami/kafka:3.7
@@ -13,10 +15,13 @@ services:
     ports:
       - "9092:9092"
     environment:
+      - KAFKA_CFG_BROKER_ID=1
       - KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181
       - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092
       - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
       - ALLOW_PLAINTEXT_LISTENER=yes
+    volumes:
+      - kafka-data:/bitnami/kafka
     depends_on:
       - zookeeper
 
@@ -39,6 +44,8 @@ services:
       - KAFKA_BROKER=kafka:9092
     volumes:
       - ./libs/kafka-utils/wait-for-kafka.sh:/wait-for-kafka.sh:ro
+      - ./services/user-service:/app
+      - /app/node_modules
     command: ["/wait-for-kafka.sh", "kafka", "npm", "run", "dev"]
     depends_on:
       - mongodb
@@ -56,6 +63,8 @@ services:
       - KAFKA_BROKER=kafka:9092
     volumes:
       - ./libs/kafka-utils/wait-for-kafka.sh:/wait-for-kafka.sh:ro
+      - ./services/cgm-service:/app
+      - /app/node_modules
     command: ["/wait-for-kafka.sh", "kafka", "npm", "run", "dev"]
     depends_on:
       - mongodb
@@ -70,12 +79,17 @@ services:
     environment:
       - MONGO_URI=mongodb://mongodb:27017/recommenderdb
       - KAFKA_BROKER=kafka:9092
+      - OLLAMA_URL=http://ollama:11434
+      - OLLAMA_MODEL=llama3.2-3b-local
     volumes:
       - ./libs/kafka-utils/wait-for-kafka.sh:/wait-for-kafka.sh:ro
+      - ./services/recommender-service:/app
+      - /app/node_modules
     command: ["/wait-for-kafka.sh", "kafka", "npm", "run", "dev"]
     depends_on:
       - mongodb
       - kafka
+      - ollama
 
   emergency-service:
     build:
@@ -90,6 +104,8 @@ services:
     volumes:
       - ./libs/kafka-utils/wait-for-kafka.sh:/wait-for-kafka.sh:ro
       - ./secrets/firebase-key.json:/run/secrets/firebase-key:ro
+      - ./services/emergency-service:/app
+      - /app/node_modules
     command: ["/wait-for-kafka.sh", "kafka", "npm", "run", "dev"]
     depends_on:
       - mongodb
@@ -107,10 +123,30 @@ services:
     volumes:
       - ./libs/kafka-utils/wait-for-kafka.sh:/wait-for-kafka.sh:ro
       - ./secrets/firebase-key.json:/run/secrets/firebase-key:ro
+      - ./services/medication-service:/app
+      - /app/node_modules
     command: ["/wait-for-kafka.sh", "kafka", "npm", "run", "dev"]
     depends_on:
       - mongodb
       - kafka
 
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
 volumes:
   mongo-data:
+  ollama-data:
+  zookeeper-data:
+  kafka-data:

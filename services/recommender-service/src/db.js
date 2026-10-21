@@ -102,6 +102,7 @@ const saveMealPlan = async (userId, mealPlanData) => {
     const saved = await newMealPlan.save();
 
     return saved;
+    console.log(saved);
   } catch (err) {
     console.error("Error saving meal plan:", err);
     throw err;

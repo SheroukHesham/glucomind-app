@@ -89,10 +89,15 @@ const generate_meal = async (userId, inputData) => {
   // Archive the user's current meal plan before generating a new one
   await archiveUserMealPlan(userId);
 
-  // Use path.join or forward slashes to avoid issues
-  const pythonScriptPath = path.join(__dirname, "HuggingInterface.py");
+  const pythonScriptPath = path.join(__dirname, "ml", "ollama-interface.py");
 
-  const python = spawn("python", [pythonScriptPath]);
+  const python = spawn("python", [pythonScriptPath], {
+    env: {
+      ...process.env,
+      OLLAMA_URL: process.env.OLLAMA_URL,
+      OLLAMA_MODEL: process.env.OLLAMA_MODEL,
+    },
+  });
   python.stdin.write(JSON.stringify(inputData));
   python.stdin.end();
 
@@ -146,11 +151,10 @@ cron.schedule("0 4 * * *", async () => {
     // TODO: make it sorted by the newest users first
     const users = await getAllUsers();
     // Count to limit the number of users processed to 2
-    // Due to the quota limitation of the HuggingFace API
-    const count = 0;
+    let count = 0;
     for (const user of users) {
-      if (count >= 2) {
-        console.log("Reached limit of 2 users for meal plan generation.");
+      if (count >= 10) {
+        console.log("Reached limit of 10 users for meal plan generation.");
         break;
       }
       count++;

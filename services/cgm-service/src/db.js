@@ -26,23 +26,30 @@ mongoose.connection.on("connected", () => {});
 const cgmSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
     ref: "User",
+    required: true,
   },
-  glucoseLevels: {
-    type: [Number],
-  },
-  trend: {
-    type: [String],
-    enum: ["steady", "rising", "falling", "unknown"],
-  },
-  timestamp: {
-    type: Date,
-    default: Date.now,
-  },
-  sensorId: {
-    type: String,
-  },
+
+  readings: [
+    {
+      glucoseLevel: {
+        type: Number,
+        required: true,
+      },
+
+      timestamp: {
+        type: Date,
+        default: Date.now,
+      },
+
+      trend: {
+        type: String,
+        enum: ["steady", "rising", "falling", "unknown"],
+      },
+    },
+  ],
+
+  sensorId: String,
 });
 
 // CGM model
@@ -68,9 +75,24 @@ async function configureSensor(sensorId, userId) {
 // Save CGM data
 const saveCgmData = async (userId, glucoseData, trend) => {
   try {
-    //**TODO: upsert and push new readings in arrays instead of new record */
-    const cgmData = new Cgm({ userId, glucoseLevels: glucoseData, trend });
-    await cgmData.save();
+    console.log(userId, glucoseData, trend);
+    const cgmData = await Cgm.findOneAndUpdate(
+      { userId },
+      {
+        $push: {
+          readings: {
+            glucoseLevel: glucoseData,
+            trend,
+            timestamp: new Date(),
+          },
+        },
+      },
+      {
+        upsert: true,
+        new: true,
+      },
+    );
+    console.log(cgmData);
   } catch (error) {
     console.error("Error saving CGM data:", error);
   }
@@ -91,7 +113,7 @@ async function getUserIdFromSensor(sensorId) {
 }
 
 // get all userIds from sensorId
-async function getUserIdFromSensor(sensorId) {
+async function getUsersIdFromSensor(sensorId) {
   try {
     const users = await Cgm.find({ sensorId: sensorId }).exec();
     if (!users || users.length === 0) {
@@ -107,9 +129,8 @@ async function getUserIdFromSensor(sensorId) {
 // Get last CGM reading of user
 async function getLastReadingByUser(userId) {
   try {
-    const latestReading = await Cgm.findOne({ userId })
-      .sort({ timestamp: -1 }) // Sort by timestamp descending
-      .exec();
+    const user = await Cgm.findOne({ userId }).exec();
+    const latestReading = user.readings[user.readings.length - 1];
 
     return latestReading;
   } catch (error) {
@@ -124,12 +145,15 @@ async function getCgmDataToday(userId) {
   today.setHours(0, 0, 0, 0); // Set to start of the day
 
   try {
-    const readings = await Cgm.find({
-      userId,
-      timestamp: { $gte: today },
-    }).sort({ timestamp: 1 });
+    const user = await Cgm.findOne({ userId }).exec();
+    if (!user) {
+      throw new Error(`User not found for userId: ${userId}`);
+    }
+    const cgmData = user.readings.filter(
+      (reading) => reading.timestamp >= today,
+    );
 
-    return readings;
+    return cgmData;
   } catch (error) {
     console.error("Error fetching CGM data for today:", error);
     throw error;
@@ -142,12 +166,16 @@ async function getCgmDataPastWeek(userId) {
   weekAgo.setDate(weekAgo.getDate() - 7); // Set to 7 days ago
 
   try {
-    const readings = await Cgm.find({
-      userId,
-      timestamp: { $gte: weekAgo },
-    }).sort({ timestamp: 1 });
+    const user = await Cgm.findOne({ userId }).exec();
+    if (!user) {
+      throw new Error(`User not found for userId: ${userId}`);
+    }
 
-    return readings;
+    const cgmData = user.readings.filter(
+      (reading) => reading.timestamp >= weekAgo,
+    );
+
+    return cgmData;
   } catch (error) {
     console.error("Error fetching CGM data for past week:", error);
     throw error;

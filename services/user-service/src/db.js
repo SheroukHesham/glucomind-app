@@ -34,7 +34,7 @@ const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true }, // Store hashed password
   name: String,
-  fcmTokens: [String],
+  fcmTokens: { type: [String], default: [] },
   age: String,
   gender: String,
   emergencyContacts: [
@@ -42,7 +42,7 @@ const userSchema = new mongoose.Schema({
       name: String,
       phone: String,
       email: String,
-      fcmTokens: [String], // optional, if contact has app and FCM tokens
+      fcmTokens: { type: [String], default: [] }, // optional, if contact has app and FCM tokens
     },
   ],
   dietaryRestrictions: [String],

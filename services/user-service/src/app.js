@@ -15,7 +15,7 @@ app.use(express.json());
 app.use(cors());
 
 const PORT = 3001;
-
+console.log("In user");
 // TODO: see firebase for user authentication and authorization
 // TODO: Add try catch for kafka producer and consumer
 
@@ -25,22 +25,6 @@ app.post("/register", async (req, res) => {
   const user = new User(req.body);
   // save user to MongoDB
   const savedUser = await saveUser(user);
-  // publish user data to Kafka
-  // const message = {
-  //   user: savedUser,
-  // };
-  // try {
-  //   await producer.send({
-  //     topic: "user-creation-events",
-  //     messages: [{ key: "user", value: JSON.stringify(message) }],
-  //   });
-
-  //   console.log("Produced:", message);
-  // } catch (error) {
-  //   console.error("Error producing message:", error);
-  //   return res.status(500).send("Internal Server Error");
-  // }
-
   res.status(201).json(savedUser);
 });
 
