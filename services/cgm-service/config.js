@@ -1,0 +1,7 @@
+module.exports = {
+  TIMEZONE: process.env.CGM_TIMEZONE || "UTC",
+  HISTORY_RETENTION_DAYS: Number(process.env.CGM_HISTORY_RETENTION_DAYS) || 90,
+  AGP_MIN_DAYS: 2,
+  AGP_MAX_DAYS: 90,
+  AGP_MIN_ACTIVE_PERCENT: 70,
+};

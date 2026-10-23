@@ -14,6 +14,10 @@ function generateGlucoseLevel() {
   return Math.floor(Math.random() * 60) + 81; // Normal (81-140)
 }
 
+/**
+ *
+ * @param {WebSocket} ws
+ */
 function sendGlucose(ws) {
   const glucoseLevel = generateGlucoseLevel();
   const data = {
@@ -29,7 +33,7 @@ function startSending() {
   ws.on("open", () => {
     sendGlucose(ws);
     // every 5 minutes
-    setInterval(() => sendGlucose(ws), 10 * 60 * 1000);
+    setInterval(() => sendGlucose(ws), 50 * 60 * 1000);
   });
 
   ws.on("message", (msg) => {});

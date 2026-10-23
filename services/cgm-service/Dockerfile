@@ -8,8 +8,9 @@ RUN npm install
 
 COPY . .
 
-# Install netcat variant
-RUN apt-get update && apt-get install -y netcat-openbsd
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends netcat-openbsd fonts-dejavu-core \
+    && rm -rf /var/lib/apt/lists/*
 
 
 CMD ["/wait-for-kafka.sh", "kafka", "npm", "run", "dev"]

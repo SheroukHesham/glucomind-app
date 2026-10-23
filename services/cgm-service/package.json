@@ -5,7 +5,7 @@
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
+    "dev": "nodemon -L src/app.js",
     "build": "tsc",
     "test": "jest"
   },
@@ -13,14 +13,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@napi-rs/canvas": "^1.0.13",
     "@types/express": "^4.17.13",
     "@types/node": "^18.11.18",
     "axios": "^1.9.0",
     "dotenv": "^16.4.7",
+    "exceljs": "^4.4.0",
     "express": "^4.21.2",
     "kafka-node": "^5.0.0",
     "kafkajs": "^2.2.4",
+    "luxon": "^3.7.2",
     "mongoose": "^8.15.1",
+    "node-cron": "^4.6.0",
     "ws": "^8.18.2"
   },
   "devDependencies": {

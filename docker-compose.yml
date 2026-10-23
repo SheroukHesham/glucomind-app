@@ -46,6 +46,8 @@ services:
       - ./libs/kafka-utils/wait-for-kafka.sh:/wait-for-kafka.sh:ro
       - ./services/user-service:/app
       - /app/node_modules
+    stdin_open: true
+    tty: true
     command: ["/wait-for-kafka.sh", "kafka", "npm", "run", "dev"]
     depends_on:
       - mongodb
@@ -61,10 +63,14 @@ services:
     environment:
       - MONGO_URI=mongodb://mongodb:27017/cgmdb
       - KAFKA_BROKER=kafka:9092
+      - CGM_TIMEZONE=Africa/Cairo
+      - CGM_HISTORY_RETENTION_DAYS=90
     volumes:
       - ./libs/kafka-utils/wait-for-kafka.sh:/wait-for-kafka.sh:ro
       - ./services/cgm-service:/app
       - /app/node_modules
+    stdin_open: true
+    tty: true
     command: ["/wait-for-kafka.sh", "kafka", "npm", "run", "dev"]
     depends_on:
       - mongodb
@@ -85,6 +91,8 @@ services:
       - ./libs/kafka-utils/wait-for-kafka.sh:/wait-for-kafka.sh:ro
       - ./services/recommender-service:/app
       - /app/node_modules
+    stdin_open: true
+    tty: true
     command: ["/wait-for-kafka.sh", "kafka", "npm", "run", "dev"]
     depends_on:
       - mongodb
@@ -106,6 +114,8 @@ services:
       - ./secrets/firebase-key.json:/run/secrets/firebase-key:ro
       - ./services/emergency-service:/app
       - /app/node_modules
+    stdin_open: true
+    tty: true
     command: ["/wait-for-kafka.sh", "kafka", "npm", "run", "dev"]
     depends_on:
       - mongodb
@@ -125,6 +135,8 @@ services:
       - ./secrets/firebase-key.json:/run/secrets/firebase-key:ro
       - ./services/medication-service:/app
       - /app/node_modules
+    stdin_open: true
+    tty: true
     command: ["/wait-for-kafka.sh", "kafka", "npm", "run", "dev"]
     depends_on:
       - mongodb

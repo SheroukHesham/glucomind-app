@@ -6,7 +6,10 @@ const kafka = new Kafka({
 });
 
 const producer = kafka.producer();
-
+/**
+ *
+ * @param {object} message
+ */
 // Produces message to glucose-events topic
 // Consumed by emergency-service to send alerts
 const produce = async (message) => {

@@ -1,8 +1,18 @@
 {
   "compilerOptions": {
     "checkJs": true,
+    "strict": false,
+    "noImplicitAny": true,
+    "strictNullChecks": false,
+    "allowJs": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
     "moduleResolution": "node",
-    "ignoreDeprecations": "6.0"
+    "ignoreDeprecations": "6.0",
+    "module": "commonjs",
+    "target": "es2020"
   },
+  "include": ["src/**/*"],
   "exclude": ["node_modules"]
 }

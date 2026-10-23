@@ -5,7 +5,7 @@
   "main": "src/app.js",
   "scripts": {
     "test": "jest",
-    "dev": "nodemon src/app.js"
+    "dev": "nodemon -L src/app.js"
   },
   "keywords": [],
   "author": "",
