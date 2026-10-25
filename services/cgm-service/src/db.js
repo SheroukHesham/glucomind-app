@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const { DateTime } = require("luxon");
-const { HISTORY_RETENTION_DAYS } = require("../config");
+const { HISTORY_RETENTION_DAYS } = require("./config");
 const { startCgmArchiveJob } = require("./jobs/archiveCgm");
 const { AppError } = require("./errors");
 require("dotenv").config();
@@ -23,6 +23,8 @@ mongoose
 mongoose.connection.on("connected", () => {
   startCgmArchiveJob();
 });
+
+const TRENDS = ["steady", "rising", "falling", "unknown"];
 
 const readingSchema = new mongoose.Schema({
   glucoseLevel: { type: Number, required: true },
@@ -72,67 +74,26 @@ cgmHistorySchema.index(
 const CgmHistory = mongoose.model("CgmHistory", cgmHistorySchema);
 
 /**
- *
- * @param {string} sensorId
- * @param {string} userId
- * @returns
- */
-async function configureSensor(sensorId, userId) {
-  try {
-    const result = await Cgm.updateOne(
-      { userId: userId },
-      { $set: { sensorId: sensorId, userId: userId } },
-      { upsert: true },
-    );
-    return result;
-  } catch (error) {
-    throw new Error(error + "");
-  }
-}
-
-/**
- *
- * @param {string} userId
- * @returns {Promise<mongoose.UpdateWriteOpResult>}
- */
-async function disconnectSensor(userId) {
-  try {
-    const result = await Cgm.updateMany(
-      { userId: userId },
-      { $unset: { sensorId: "" } },
-    );
-    return result;
-  } catch (error) {
-    throw new Error(error + "");
-  }
-}
-
-/**
- *
  * @param {string} userId
  * @param {number} glucoseLevel
+ * @param {{ sensorId?: string, trend?: string }} [extra]
  */
-const saveCgmData = async (userId, glucoseLevel) => {
-  try {
-    await Cgm.findOneAndUpdate(
-      { userId },
-      {
-        $push: {
-          readings: {
-            glucoseLevel: glucoseLevel,
-            timestamp: new Date(),
-          },
-        },
+async function saveCgmData(userId, glucoseLevel, extra = {}) {
+  /** @type {import("mongoose").UpdateQuery<CgmDoc>} */
+  const update = {
+    $push: {
+      readings: {
+        glucoseLevel,
+        timestamp: new Date(),
+        ...(extra.trend && TRENDS.includes(extra.trend)
+          ? { trend: extra.trend }
+          : {}),
       },
-      {
-        upsert: true,
-        new: true,
-      },
-    );
-  } catch (error) {
-    console.error("Error saving CGM data:", error);
-  }
-};
+    },
+  };
+  if (extra.sensorId) update.$set = { sensorId: extra.sensorId };
+  await Cgm.updateOne({ userId }, update, { upsert: true });
+}
 
 /**
  *
@@ -236,6 +197,4 @@ module.exports = {
   getCgmDataToday,
   getUserIdFromSensor,
   getReadingsRange,
-  configureSensor,
-  disconnectSensor,
 };

@@ -1,12 +1,11 @@
+const { AppError } = require("./errors");
+const { verifySensor } = require("./sensors");
 const { produce } = require("./kafka/producers.js");
 const {
   saveCgmData,
   getLastReadingByUser,
   Cgm,
   getCgmDataToday,
-  getUserIdFromSensor,
-  disconnectSensor,
-  configureSensor,
 } = require("./db.js");
 
 class CgmService {
@@ -24,35 +23,6 @@ class CgmService {
       return latestReading;
     } catch (error) {
       throw new Error("Error getting current reading" + error);
-    }
-  }
-
-  /**
-   *
-   * @param {string} userId
-   * @param {string} sensorId
-   * @returns
-   */
-  async connectSensor(userId, sensorId) {
-    try {
-      const result = await configureSensor(sensorId, userId);
-      return result;
-    } catch (error) {
-      throw new Error(error + "");
-    }
-  }
-
-  /**
-   *
-   * @param {string} userId
-   * @returns
-   */
-  async disconnectSensor(userId) {
-    try {
-      const result = await disconnectSensor(userId);
-      return result;
-    } catch (error) {
-      throw new Error(error + "");
     }
   }
 
@@ -124,36 +94,43 @@ class CgmService {
 
   //TODO: change after separating sensors and data
   /**
-   *
    * @param {string} sensorId
+   * @param {string} token
    * @param {number} glucoseLevel
-   * @returns
    */
-  async handleCgmReading(sensorId, glucoseLevel) {
-    try {
-      // get all userIds from sensorId
-      const userId = await getUserIdFromSensor(sensorId);
-      if (!userId) {
-        console.error(
-          `No users found for sensorId: ${sensorId}. Please connect the sensor first.`,
-        );
-        return;
-      }
-      // Analyze and save the glucose data for all users
-
-      let trend;
-
-      try {
-        trend = await this.analyzeGlucoseData(userId.toString(), glucoseLevel);
-      } catch (err) {
-        console.error("handleGlucoseData failed:", err);
-      }
-
-      await saveCgmData(userId.toString(), glucoseLevel);
-      return trend;
-    } catch (error) {
-      throw new Error("" + error);
+  async handleCgmReading(sensorId, token, glucoseLevel) {
+    if (
+      !Number.isFinite(glucoseLevel) ||
+      glucoseLevel < 20 ||
+      glucoseLevel > 600
+    ) {
+      throw new AppError(
+        "Glucose level out of range (20-600 mg/dL)",
+        "INVALID_READING",
+      );
     }
+
+    const userId = await verifySensor(sensorId, token);
+    if (!userId) {
+      throw new AppError(
+        "Unknown, unpaired or unauthenticated sensor",
+        "SENSOR_UNAUTHORIZED",
+      );
+    }
+    const uid = userId.toString();
+
+    let trend;
+    try {
+      trend = await this.analyzeGlucoseData(uid, glucoseLevel);
+    } catch (err) {
+      console.error("analyzeGlucoseData failed:", err);
+    }
+
+    await saveCgmData(uid, glucoseLevel, {
+      sensorId,
+      trend: typeof trend === "string" ? trend : undefined,
+    });
+    return { userId: uid, glucoseLevel, trend };
   }
 
   /**

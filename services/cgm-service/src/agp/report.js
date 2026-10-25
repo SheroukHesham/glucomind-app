@@ -7,7 +7,7 @@ const {
   AGP_MIN_DAYS,
   AGP_MAX_DAYS,
   AGP_MIN_ACTIVE_PERCENT,
-} = require("../../config");
+} = require("../config");
 const { getReadingsRange } = require("../db");
 const {
   PROFILES,

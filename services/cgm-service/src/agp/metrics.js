@@ -1,6 +1,6 @@
 // @ts-nocheck
 const { DateTime } = require("luxon");
-const { TIMEZONE } = require("../../config");
+const { TIMEZONE } = require("../config");
 
 /* Target profiles from the standardised CGM metrics guideline
    a = general T1/T2 population, b = older / high hypoglycaemia risk,

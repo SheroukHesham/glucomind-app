@@ -60,11 +60,15 @@ services:
     ports:
       - "3000:3000"
       - "4000:4000"
+    env_file:
+      - ./services/cgm-service/.env
     environment:
       - MONGO_URI=mongodb://mongodb:27017/cgmdb
       - KAFKA_BROKER=kafka:9092
       - CGM_TIMEZONE=Africa/Cairo
       - CGM_HISTORY_RETENTION_DAYS=90
+      - SIM_INTERVAL_SECONDS=300
+      - SIMULATE_SENSORS=true
     volumes:
       - ./libs/kafka-utils/wait-for-kafka.sh:/wait-for-kafka.sh:ro
       - ./services/cgm-service:/app

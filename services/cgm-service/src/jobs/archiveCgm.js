@@ -1,6 +1,6 @@
 const cron = require("node-cron");
 const { DateTime } = require("luxon");
-const { TIMEZONE } = require("../../config");
+const { TIMEZONE } = require("../config");
 
 let running = false;
 

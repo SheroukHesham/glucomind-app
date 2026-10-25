@@ -1,46 +1,76 @@
+const { generateAgpReport } = require("./agp/report.js");
+const { AppError } = require("./errors");
+const { SensorSimulator } = require("./sensor-simulator");
+const { createSensorRouter } = require("./sensor-routes");
+const { listActiveSensorIds } = require("./sensors");
+const WebSocket = require("ws");
 const express = require("express");
-const axios = require("axios");
 const CgmService = require("./service.js");
 const cgmService = new CgmService();
-const { spawn } = require("child_process");
-const path = require("path");
 
 const app = express();
 app.use(express.json());
 const PORT = 3000;
 
 // Websocket connection
-const WebSocket = require("ws");
-const { generateAgpReport } = require("./agp/report.js");
 const wss = new WebSocket.Server({ port: 4000 });
+const simulator = new SensorSimulator();
+app.use("/cgm/sensors", createSensorRouter({ simulator }));
 
-//TODO: make the sensor and data unique for each user
-// Start the dummy CGM data sender script
-const senderScript = path.join(__dirname, "sensor-script.js");
-spawn("node", [senderScript], {
-  stdio: "inherit",
-});
+if (process.env.SIMULATE_SENSORS !== "false") {
+  listActiveSensorIds()
+    .then((ids) => simulator.restore(ids))
+    .catch((err) => console.error("Failed to restore sensors:", err));
+}
+
+/** @param {WebSocket} ws @param {object} payload */
+const reply = (ws, payload) => ws.send(JSON.stringify(payload));
 
 wss.on("connection", (ws) => {
-  ws.on("message", async (message) => {
+  ws.on("message", async (raw) => {
+    let msg;
     try {
-      // Expecting message as JSON: { sensorId, glucoseLevel }
-      const { sensorId, glucoseLevel } = JSON.parse(message.toString());
+      msg = JSON.parse(raw.toString());
+    } catch {
+      return reply(ws, {
+        ok: false,
+        code: "INVALID_JSON",
+        error: "Message must be valid JSON",
+      });
+    }
 
-      if (!sensorId || !glucoseLevel) {
-        ws.send(
-          JSON.stringify({ error: "User ID and glucose level are required" }),
-        );
-        return;
+    // Expected: { sensorId: string, token: string, glucoseLevel: number }
+    const { sensorId, token, glucoseLevel } = msg || {};
+    if (
+      typeof sensorId !== "string" ||
+      typeof token !== "string" ||
+      typeof glucoseLevel !== "number"
+    ) {
+      return reply(ws, {
+        ok: false,
+        code: "INVALID_PAYLOAD",
+        error: "sensorId, token and glucoseLevel are required",
+      });
+    }
+
+    try {
+      const reading = await cgmService.handleCgmReading(
+        sensorId,
+        token,
+        glucoseLevel,
+      );
+      reply(ws, { ok: true, trend: reading.trend ?? null });
+      // TODO: push { userId: reading.userId, glucoseLevel, trend } to the frontend
+    } catch (err) {
+      if (err instanceof AppError) {
+        return reply(ws, { ok: false, code: err.code, error: err.message });
       }
-      const trend = cgmService.handleCgmReading(sensorId, glucoseLevel);
-      //TODO: send the glucose level and trend to Frontend
-    } catch (error) {
-      ws.send(JSON.stringify({ error: "Invalid data or server error" }));
+      console.error("Failed to process reading:", err);
+      reply(ws, { ok: false, code: "SERVER_ERROR", error: "Server error" });
     }
   });
 
-  ws.send(JSON.stringify({ message: "WebSocket connection established" }));
+  reply(ws, { message: "WebSocket connection established" });
 });
 
 /**
@@ -55,41 +85,6 @@ app.get("/cgm/current/:userId", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-app.post("/cgm/add-sensor/:userId", async (req, res) => {
-  const { userId } = req.params;
-  const { sensorId } = req.body;
-
-  if (!userId || !sensorId) {
-    return res.status(400).json({ error: "userId and sensorId are required" });
-  }
-  try {
-    const result = await cgmService.connectSensor(userId, sensorId);
-    res.json({
-      message: "User Connected Successfully",
-      result,
-    });
-  } catch (error) {
-    console.error("Error connecting sensor:", error);
-    res.status(500).json({ error: "Failed to Connect Sensor" });
-  }
-});
-
-app.delete("/cgm/remove-sensor/:userId", async (req, res) => {
-  const { userId } = req.params;
-  if (!userId) {
-    return res.status(400).json({ error: "userId is required" });
-  }
-  try {
-    cgmService.disconnectSensor(userId);
-    res.json({
-      message: "Sensor Disconnected",
-    });
-  } catch (error) {
-    console.error("Error disconnecting sensor for user:", error);
-    res.status(500).json({ error: "Failed to disconnect sensor" });
   }
 });
 
