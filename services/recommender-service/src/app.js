@@ -206,6 +206,94 @@ app.post("/recommend/:id", async (req, res) => {
   res.json({ success: true, message: "Meal plan generation started" });
 });
 
+//TODO: move to recommender service
+// get liked meals
+app.get("/liked-meals/:id", async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select("likedMeals");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json({ likedMeals: user.likedMeals });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+// add a liked meal
+app.post("/liked-meals/:id/add", async (req, res) => {
+  const { mealName } = req.body;
+  if (!mealName)
+    return res.status(400).json({ message: "mealName is required" });
+
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (!user.likedRecipes.includes(mealName)) {
+      user.likedRecipes.push(mealName);
+      await user.save();
+    }
+    res.json({ likedMeals: user.likedRecipes });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+// remove a liked meal
+app.post("/liked-meals/:id/remove", async (req, res) => {
+  const { mealName } = req.body;
+  if (!mealName)
+    return res.status(400).json({ message: "mealName is required" });
+
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.likedRecipes = user.likedRecipes.filter((name) => name !== mealName);
+    await user.save();
+
+    res.json({ likedMeals: user.likedRecipes });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+//  add a disliked meal
+app.post("/disliked-meals/:id/add", async (req, res) => {
+  const { mealName } = req.body;
+  if (!mealName)
+    return res.status(400).json({ message: "mealName is required" });
+
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (!user.dislikedRecipes.includes(mealName)) {
+      user.dislikedRecipes.push(mealName);
+      await user.save();
+    }
+    res.json({ likedMeals: user.dislikedRecipes });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+// remove a disliked meal
+app.post("/disliked-meals/:id/remove", async (req, res) => {
+  const { mealName } = req.body;
+  if (!mealName)
+    return res.status(400).json({ message: "mealName is required" });
+
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    user.dislikedRecipes = user.dislikedRecipes.filter(
+      (name) => name !== mealName,
+    );
+    await user.save();
+
+    res.json({ likedMeals: user.dislikedRecipes });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // TODO: recommendations can be meal plans or can be done for specific meals
 // user can choose whether they want breakfast, lunch, dinner or snack recommendations
 // the previously consumed meals and their calories of the day are sent to recommender to be taken into account

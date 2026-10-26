@@ -1,6 +1,6 @@
 const { AppError } = require("./errors");
 const { verifySensor } = require("./sensors");
-const { produce } = require("./kafka/producers.js");
+const { produceGlucoseEvent } = require("./kafka/producers.ts");
 const {
   saveCgmData,
   getLastReadingByUser,
@@ -15,15 +15,11 @@ class CgmService {
    * @returns
    */
   async getCurrentReading(userId) {
-    try {
-      const latestReading = await getLastReadingByUser(userId);
-      if (!latestReading) {
-        return undefined;
-      }
-      return latestReading;
-    } catch (error) {
-      throw new Error("Error getting current reading" + error);
+    const latestReading = await getLastReadingByUser(userId);
+    if (!latestReading) {
+      return undefined;
     }
+    return latestReading;
   }
 
   /**
@@ -33,66 +29,72 @@ class CgmService {
    * @returns {Promise<"steady" | "rising" | "falling">}
    */
   async analyzeGlucoseData(userId, glucoseLevel) {
-    try {
-      const lastReading = await getLastReadingByUser(userId);
-      /**
-       * @type ("steady" | "rising" | "falling")
-       */
-      let trend;
-      if (lastReading) {
-        const prevValue = lastReading.glucoseLevel;
-        if (glucoseLevel > prevValue + 5) trend = "rising";
-        else if (glucoseLevel < prevValue - 5) trend = "falling";
-        else trend = "steady";
-      } else {
-        return "steady";
-      }
+    const lastReading = await getLastReadingByUser(userId);
+    /**
+     * @type ("steady" | "rising" | "falling")
+     */
+    let trend;
+    if (lastReading) {
+      const prevValue = lastReading.glucoseLevel;
+      if (glucoseLevel > prevValue + 5) trend = "rising";
+      else if (glucoseLevel < prevValue - 5) trend = "falling";
+      else trend = "steady";
+    } else {
+      return "steady";
+    }
 
-      // Normal
-      if (glucoseLevel >= 80 && glucoseLevel <= 140) {
-        return trend;
-      }
+    // Normal
+    if (glucoseLevel >= 80 && glucoseLevel <= 140) {
+      return trend;
+    }
 
-      const baseMessage = {
-        userId: userId,
-        glucoseLevel: glucoseLevel,
-        trend: trend,
-        timestamp: new Date().toISOString(),
+    const baseMessage = {
+      userId: userId,
+      glucoseLevel: glucoseLevel,
+      trend: trend,
+    };
+
+    if (
+      (glucoseLevel >= 70 && glucoseLevel < 80) ||
+      (glucoseLevel > 140 && glucoseLevel <= 180)
+    ) {
+      const message = {
+        ...baseMessage,
+        criticality: "slightly_abnormal",
+      };
+      try {
+        await produceGlucoseEvent(message);
+      } catch (error) {
+        console.error("Error producing alert", error);
+      }
+    } else if (
+      (glucoseLevel >= 55 && glucoseLevel < 70) ||
+      (glucoseLevel > 180 && glucoseLevel <= 250)
+    ) {
+      const message = {
+        ...baseMessage,
+        criticality: "high_low",
       };
 
-      if (
-        (glucoseLevel >= 70 && glucoseLevel < 80) ||
-        (glucoseLevel > 140 && glucoseLevel <= 180)
-      ) {
-        const message = {
-          ...baseMessage,
-          criticality: "slightly_abnormal",
-        };
-        await produce(message);
-      } else if (
-        (glucoseLevel >= 55 && glucoseLevel < 70) ||
-        (glucoseLevel > 180 && glucoseLevel <= 250)
-      ) {
-        const message = {
-          ...baseMessage,
-          criticality: "high_low",
-        };
-
-        await produce(message);
-      } else if (glucoseLevel < 55 || glucoseLevel > 250) {
-        const message = {
-          ...baseMessage,
-          criticality: "critical",
-        };
-        await produce(message);
+      try {
+        await produceGlucoseEvent(message);
+      } catch (error) {
+        console.error("Error producing alert", error);
       }
-      return trend;
-    } catch (error) {
-      console.error("Error in handleGlucoseData:", error);
+    } else if (glucoseLevel < 55 || glucoseLevel > 250) {
+      const message = {
+        ...baseMessage,
+        criticality: "critical",
+      };
+      try {
+        await produceGlucoseEvent(message);
+      } catch (error) {
+        console.error("Error producing alert", error);
+      }
     }
+    return trend;
   }
 
-  //TODO: change after separating sensors and data
   /**
    * @param {string} sensorId
    * @param {string} token
@@ -139,15 +141,13 @@ class CgmService {
    * @returns
    */
   async getDayReadings(userId) {
-    try {
-      const user = await Cgm.findOne({ userId }).lean();
-      if (!user) return [];
+    const user = await Cgm.findOne({ userId }).lean();
+    if (!user) return [];
 
-      const readings = [...user.readings].sort(
-        (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
-      );
-      return readings;
-    } catch (error) {}
+    const readings = [...user.readings].sort(
+      (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+    );
+    return readings;
   }
 
   /**

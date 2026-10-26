@@ -2,11 +2,13 @@
   "name": "medication-service",
   "version": "1.0.0",
   "description": "",
-  "main": "src/app.js",
+  "main": "dist/app.js",
   "scripts": {
-    "test": "jest",
-    "start": "node src/app.js",
-    "dev": "nodemon -L src/app.js"
+    "dev": "nodemon -L",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/app.js",
+    "typecheck": "tsc --noEmit",
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
@@ -18,10 +20,19 @@
     "express": "^5.1.0",
     "firebase-admin": "^13.4.0",
     "ics": "^3.8.1",
+    "kafkajs": "^2.2.4",
     "mongoose": "^8.13.2",
     "node-cron": "^4.1.0"
   },
   "devDependencies": {
-    "nodemon": "^3.1.9"
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^26.6.5",
+    "jest": "^30.5.2",
+    "nodemon": "^3.1.14",
+    "ts-jest": "^29.4.15",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3"
   }
 }

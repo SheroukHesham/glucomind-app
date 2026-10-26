@@ -145,6 +145,59 @@ cron.schedule("* * * * *", async () => {
   }
 });
 
+// TODO: move to medication service
+// // on update: send medication list of user to medication service via kafka to be updated
+// const medications = user.medications || [];
+// await sendMedicationEvents(userId, medications);
+// update medication list of user
+app.put("/user/:id/medications", async (req, res) => {
+  const userId = req.params.id;
+  const medications = req.body.medications;
+
+  if (!medications || !Array.isArray(medications)) {
+    return res.status(400).send("Invalid medications data");
+  }
+
+  try {
+    const user = await getUserById(userId);
+    if (!user) return res.status(404).send("User not found");
+
+    user.medications = medications;
+    await user.save();
+
+    // send medication list of user to medication service via kafka
+    // await sendMedicationEvents(userId, medications);
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error updating medications:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+// get all users who have medications
+app.get("/users-with-medications", async (req, res) => {
+  try {
+    // Find users where medications array exists and is not empty
+    const users = await User.find({
+      medications: { $exists: true, $not: { $size: 0 } },
+    }).select("_id medications fcmTokens name email");
+
+    // Format response as needed for medication service
+    const result = users.map((user) => ({
+      userId: user._id,
+      name: user.name,
+      email: user.email,
+      fcmTokens: user.fcmTokens,
+      medications: user.medications,
+    }));
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error("Error fetching users with medications:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 app.listen(PORT, "0.0.0.0", () => {
   console.log("Medication Service on port 3002");
 });
