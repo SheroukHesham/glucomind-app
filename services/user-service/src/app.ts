@@ -3,14 +3,14 @@ import cors from "cors";
 import { createAuthRouter } from "./routes/auth.routes";
 import { UserService } from "./service";
 const userService = new UserService();
+const { createSettingsRouter } = require("./routes/settings.routes");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(createAuthRouter(userService));
+app.use(createSettingsRouter(userService));
 const PORT = 3001;
-
-// TODO: Add try catch for kafka producer and consumer
 
 const GENDERS = ["Male", "Female"];
 

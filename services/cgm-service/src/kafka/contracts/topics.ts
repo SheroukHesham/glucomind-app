@@ -6,6 +6,7 @@ export const TOPICS = {
   MEDICATION_CREATION_EVENTS: "medication-creation-events",
   USER_CREATION_EVENTS: "user-creation-events",
   DEVICE_TOKENS: "device-tokens",
+  USER_SETTINGS: "user-settings",
 } as const;
 
 export type Topic = (typeof TOPICS)[keyof typeof TOPICS];

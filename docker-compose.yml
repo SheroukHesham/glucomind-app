@@ -25,6 +25,25 @@ services:
     depends_on:
       - zookeeper
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    command:
+      [
+        "redis-server",
+        "--appendonly",
+        "yes",
+        "--maxmemory-policy",
+        "noeviction",
+      ]
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
   kafka-init:
     image: bitnami/kafka:3.7
     container_name: kafka-init
@@ -113,6 +132,8 @@ services:
       - KAFKA_BROKER=kafka:9092
       - OLLAMA_URL=http://ollama:11434
       - OLLAMA_MODEL=llama3.2-3b-local
+      - REDIS_URL=redis://redis:6379
+      - DEFAULT_TIMEZONE=Africa/Cairo
     volumes:
       - ./libs/kafka-utils/wait-for-kafka.sh:/wait-for-kafka.sh:ro
       - ./services/recommender-service:/app
@@ -128,6 +149,8 @@ services:
       kafka-init:
         condition: service_completed_successfully
       ollama:
+        condition: service_healthy
+      redis:
         condition: service_healthy
 
   emergency-service:
@@ -163,12 +186,16 @@ services:
       context: ./services/medication-service
       target: dev
     container_name: medication-service
+    secrets:
+      - firebase-key
     ports:
       - "3002:3002"
     environment:
       - MONGO_URI=mongodb://mongodb:27017/medicationdb
       - KAFKA_BROKER=kafka:9092
       - GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/firebase-key
+      - REDIS_URL=redis://redis:6379
+      - DEFAULT_TIMEZONE=Africa/Cairo
     env_file:
       - ./services/medication-service/.env
     volumes:
@@ -186,6 +213,8 @@ services:
         condition: service_started
       kafka-init:
         condition: service_completed_successfully
+      redis:
+        condition: service_healthy
 
   ollama:
     image: ollama/ollama:latest
@@ -213,3 +242,8 @@ volumes:
   ollama-data:
   zookeeper-data:
   kafka-data:
+  redis-data:
+
+secrets:
+  firebase-key:
+    file: ./secrets/firebase-key.json

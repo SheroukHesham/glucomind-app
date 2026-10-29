@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import { AppError } from "./errors";
-import { publishDeviceToken } from "./Kafka/producers";
+import { publishDeviceToken, publishUserSettings } from "./Kafka/producers";
 import { IAuthData } from "./interfaces";
 import {
   deleteUserById,
@@ -15,6 +15,7 @@ import {
   isDevicePlatform,
 } from "./Kafka/contracts/device-tokens";
 import { JWT_EXPIRES_IN, JWT_SECRET } from "./config";
+import { isValidTimezone } from "./Kafka/contracts/user-settings";
 
 export interface LoginResult {
   accessToken: string;
@@ -25,8 +26,7 @@ export class UserService {
   constructor() {}
 
   async registerUser(userData: IAuthData) {
-    const user = await saveUser(userData);
-    return user;
+    return saveUser(userData);
   }
 
   /** Authenticates and issues an access token. FCM tokens are NOT handled here any more. */
@@ -69,6 +69,23 @@ export class UserService {
   /** Publishes a tombstone: consumers delete the token. Call on logout. */
   async unregisterDevice(fcmToken: string): Promise<void> {
     await publishDeviceToken(fcmToken, null);
+  }
+
+  /**
+   * Publishes the user's settings (currently the timezone) to Kafka.
+   * Idempotent: the app calls it after login and on every start; consumers ignore unchanged values.
+   */
+  async updateSettings(
+    userId: string,
+    settings: { timezone: string },
+  ): Promise<void> {
+    if (!isValidTimezone(settings.timezone)) {
+      throw new AppError("Invalid IANA timezone", "INVALID_TIMEZONE");
+    }
+    await publishUserSettings(userId, {
+      timezone: settings.timezone,
+      updatedAt: new Date().toISOString(),
+    });
   }
 
   async getUser(userId: string) {

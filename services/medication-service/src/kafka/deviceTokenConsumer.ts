@@ -79,7 +79,7 @@ export async function startDeviceTokenSync(): Promise<void> {
             updatedAt: new Date(value.updatedAt),
           },
         },
-        { upsert: true }, // idempotent: redelivery is harmless
+        { upsert: true },
       );
     },
   });

@@ -27,6 +27,7 @@ create_topic glucose-events 3 1
 # ---- user-service -> medication / recommender
 create_topic medication-creation-events 3 1
 create_topic user-creation-events 3 1
+create_topic user-settings 3 1 cleanup.policy=compact
 
 # ---- planned (from the earlier designs): uncomment when you implement them
 create_topic device-tokens 3 1 cleanup.policy=compact

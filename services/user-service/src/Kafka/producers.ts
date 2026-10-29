@@ -5,13 +5,17 @@ import {
   DeviceTokenValue,
 } from "./contracts/device-tokens";
 import { MedicationCreationEvent } from "./contracts/medication-creation-events";
+import {
+  USER_SETTINGS_TOPIC,
+  UserSettingsValue,
+} from "./contracts/user-settings";
 
 const producer = createKafka("producer").producer();
 let connecting: Promise<void> | null = null;
 
 function ensureConnected(): Promise<void> {
   connecting ??= producer.connect().catch((err: unknown) => {
-    connecting = null;
+    connecting = null; // allow a retry on the next call
     throw err;
   });
   return connecting;
@@ -44,6 +48,14 @@ export async function publishDeviceToken(
   value: DeviceTokenValue | null,
 ): Promise<void> {
   await send(DEVICE_TOKEN_TOPIC, token, value);
+}
+
+/** Consumed by medication-service and recommender-service (each keeps its own copy). */
+export async function publishUserSettings(
+  userId: string,
+  value: UserSettingsValue,
+): Promise<void> {
+  await send(USER_SETTINGS_TOPIC, userId, value);
 }
 
 export async function disconnectProducer(): Promise<void> {

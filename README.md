@@ -1,3 +1,1 @@
 # GlucoMind
-
-Graduation Project

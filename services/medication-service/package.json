@@ -16,13 +16,13 @@
   "dependencies": {
     "@react-native-firebase/app": "^21.14.0",
     "@react-native-firebase/messaging": "^21.14.0",
-    "axios": "^1.9.0",
+    "bullmq": "^6.5.1",
     "express": "^5.1.0",
     "firebase-admin": "^13.4.0",
     "ics": "^3.8.1",
+    "ioredis": "^6.0.0",
     "kafkajs": "^2.2.4",
-    "mongoose": "^8.13.2",
-    "node-cron": "^4.1.0"
+    "mongoose": "^8.13.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
