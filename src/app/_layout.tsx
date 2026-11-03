@@ -1,18 +1,38 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+//**Todo: add theme and switch
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+import "@/global.css";
+// import { useColorScheme } from "@/hooks/use-color-scheme.web";
+// import { ThemeProvider } from "@react-navigation/native";
+import { PortalHost } from "@rn-primitives/portal";
+import { Stack } from "expo-router";
+import StoreProvider from "./StoreProvider";
 
-SplashScreen.preventAutoHideAsync();
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+export default function RootLayout() {
+  const isRegistered = false;
+  const isLoggedIn = false;
+  // const colorScheme = useColorScheme();
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <StoreProvider>
+      {/* <ThemeProvider
+        value={NAV_THEME[colorScheme === "dark" ? "dark" : "light"]}
+      > */}
+      {/* <StatusBar style={colorScheme === "dark" ? "light" : "dark"} /> */}
+
+      <Stack>
+        <Stack.Screen
+          name="register"
+          options={{ headerShown: false }}
+          redirect={isRegistered}
+        />
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="(tabs)"
+          options={{ headerShown: false }}
+          redirect={!isRegistered}
+        />
+      </Stack>
+      <PortalHost />
+      {/* </ThemeProvider> */}
+    </StoreProvider>
   );
 }
