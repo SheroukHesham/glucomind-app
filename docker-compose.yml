@@ -96,7 +96,8 @@ services:
     container_name: cgm-service
     ports:
       - "3000:3000"
-      - "4000:4000"
+      # 4000 (sensor WebSocket) stays internal: the simulated sensors run inside this container.
+      # Publish it only when real sensors must connect from outside.
     env_file:
       - ./services/cgm-service/.env
     environment:
@@ -236,6 +237,45 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
+
+  # ---------------------------------------------------------------------------
+  # API gateway: the only backend address the app talks to (http://<host>:8080/api/<service>/...)
+  # No depends_on on purpose: nginx resolves service names per request, so it never waits for
+  # (or breaks because of) a slow service such as the recommender waiting for Ollama.
+  # ---------------------------------------------------------------------------
+  gateway:
+    image: nginx:1.27-alpine
+    container_name: gateway
+    ports:
+      - "${GATEWAY_PORT:-8080}:80"
+    volumes:
+      - ./infra/gateway/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # Expo dev server (Metro). The phone / emulator connects to it on port 8081.
+  # REACT_NATIVE_PACKAGER_HOSTNAME must be your computer's LAN IP, otherwise the QR code
+  # contains the container's private Docker IP and the phone cannot reach it.
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      target: dev
+    container_name: frontend
+    ports:
+      - "8081:8081"
+    environment:
+      - REACT_NATIVE_PACKAGER_HOSTNAME=${HOST_IP:-localhost}
+      - EXPO_PUBLIC_API_URL=${EXPO_PUBLIC_API_URL:-http://localhost:8080/api}
+      - EXPO_NO_TELEMETRY=1
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    stdin_open: true # lets the QR code render in `docker-compose logs frontend`
+    tty: true
+    command: npx expo start ${EXPO_START_FLAGS:---lan}
+    depends_on:
+      - gateway
 
 volumes:
   mongo-data:
