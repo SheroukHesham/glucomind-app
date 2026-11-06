@@ -6,8 +6,8 @@ export default function TabLayout() {
       <Drawer.Screen
         name="index"
         options={{
-          drawerLabel: "Home",
-          title: "Home",
+          drawerLabel: "Dashboard",
+          title: "Dashboard",
         }}
       />
       <Drawer.Screen
