@@ -1,16 +1,16 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+/*
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 132 10% 10%;
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 140 39% 34%; /*hsl(140, 39%, 34%)*/
+    --primary: 140 39% 34%; 
     --primary-foreground: 140 100% 100%;
     --secondary: 0 0% 96.1%;
     --secondary-foreground: 0 0% 9%;
@@ -55,4 +55,8 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
-}
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}*/

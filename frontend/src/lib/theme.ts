@@ -1,81 +1,84 @@
 import { DarkTheme, DefaultTheme, type Theme } from "@react-navigation/native";
+import { vars } from "nativewind";
+import themeTokens from "./theme.tokens.json";
 
-export const THEME = {
-  light: {
-    background: "hsl(0 0% 100%)",
-    foreground: "hsl(0 0% 3.9%)",
-    card: "hsl(0 0% 100%)",
-    cardForeground: "hsl(0 0% 3.9%)",
-    popover: "hsl(0 0% 100%)",
-    popoverForeground: "hsl(0 0% 3.9%)",
-    primary: "hsl(211, 100%, 50%);",
-    primaryForeground: "hsl(0 0% 98%)",
-    secondary: "hsl(0 0% 96.1%)",
-    secondaryForeground: "hsl(0 0% 9%)",
-    muted: "hsl(0 0% 96.1%)",
-    mutedForeground: "hsl(0 0% 45.1%)",
-    accent: "hsl(0 0% 96.1%)",
-    accentForeground: "hsl(0 0% 9%)",
-    destructive: "hsl(0 84.2% 60.2%)",
-    border: "hsl(0 0% 89.8%)",
-    input: "hsl(0 0% 89.8%)",
-    ring: "hsl(0 0% 63%)",
-    radius: "0.625rem",
-    chart1: "hsl(12 76% 61%)",
-    chart2: "hsl(173 58% 39%)",
-    chart3: "hsl(197 37% 24%)",
-    chart4: "hsl(43 74% 66%)",
-    chart5: "hsl(27 87% 67%)",
-  },
-  dark: {
-    background: "hsl(0 0% 3.9%)",
-    foreground: "hsl(0 0% 98%)",
-    card: "hsl(0 0% 3.9%)",
-    cardForeground: "hsl(0 0% 98%)",
-    popover: "hsl(0 0% 3.9%)",
-    popoverForeground: "hsl(0 0% 98%)",
-    primary: "hsl(211, 100%, 50%);",
-    primaryForeground: "hsl(0 0% 9%)",
-    secondary: "hsl(0 0% 14.9%)",
-    secondaryForeground: "hsl(0 0% 98%)",
-    muted: "hsl(0 0% 14.9%)",
-    mutedForeground: "hsl(0 0% 63.9%)",
-    accent: "hsl(0 0% 14.9%)",
-    accentForeground: "hsl(0 0% 98%)",
-    destructive: "hsl(0 70.9% 59.4%)",
-    border: "hsl(0 0% 14.9%)",
-    input: "hsl(0 0% 14.9%)",
-    ring: "hsl(300 0% 45%)",
-    radius: "0.625rem",
-    chart1: "hsl(220 70% 50%)",
-    chart2: "hsl(160 60% 45%)",
-    chart3: "hsl(30 80% 55%)",
-    chart4: "hsl(280 65% 60%)",
-    chart5: "hsl(340 75% 55%)",
-  },
+export type ColorScheme = "light" | "dark";
+
+export type ThemeColors = {
+  background: string;
+  foreground: string;
+  card: string;
+  cardForeground: string;
+  popover: string;
+  popoverForeground: string;
+  primary: string;
+  primaryForeground: string;
+  secondary: string;
+  secondaryForeground: string;
+  muted: string;
+  mutedForeground: string;
+  accent: string;
+  accentForeground: string;
+  destructive: string;
+  destructiveForeground: string;
+  border: string;
+  input: string;
+  ring: string;
 };
 
-export const NAV_THEME: Record<"light" | "dark", Theme> = {
-  light: {
-    ...DefaultTheme,
+export const THEME = themeTokens as Record<ColorScheme, ThemeColors>;
+
+/**
+ * Expose the selected palette as NativeWind CSS variables.
+ * Descendant components can use semantic classes such as bg-background.
+ */
+export function getThemeVariables(scheme: ColorScheme) {
+  const colors = THEME[scheme];
+
+  return vars({
+    "--background": colors.background,
+    "--foreground": colors.foreground,
+    "--card": colors.card,
+    "--card-foreground": colors.cardForeground,
+    "--popover": colors.popover,
+    "--popover-foreground": colors.popoverForeground,
+    "--primary": colors.primary,
+    "--primary-foreground": colors.primaryForeground,
+    "--secondary": colors.secondary,
+    "--secondary-foreground": colors.secondaryForeground,
+    "--muted": colors.muted,
+    "--muted-foreground": colors.mutedForeground,
+    "--accent": colors.accent,
+    "--accent-foreground": colors.accentForeground,
+    "--destructive": colors.destructive,
+    "--destructive-foreground": colors.destructiveForeground,
+    "--border": colors.border,
+    "--input": colors.input,
+    "--ring": colors.ring,
+  });
+}
+
+function createNavigationTheme(
+  baseTheme: Theme,
+  colors: ThemeColors,
+  isDark: boolean,
+): Theme {
+  return {
+    ...baseTheme,
+    dark: isDark,
     colors: {
-      background: THEME.light.background,
-      border: THEME.light.border,
-      card: THEME.light.card,
-      notification: THEME.light.destructive,
-      primary: THEME.light.primary,
-      text: THEME.light.foreground,
+      ...baseTheme.colors,
+      background: colors.background,
+      border: colors.border,
+      card: colors.card,
+      notification: colors.destructive,
+      primary: colors.primary,
+      text: colors.foreground,
     },
-  },
-  dark: {
-    ...DarkTheme,
-    colors: {
-      background: THEME.dark.background,
-      border: THEME.dark.border,
-      card: THEME.dark.card,
-      notification: THEME.dark.destructive,
-      primary: THEME.dark.primary,
-      text: THEME.dark.foreground,
-    },
-  },
+  };
+}
+
+export const NAV_THEME: Record<ColorScheme, Theme> = {
+  light: createNavigationTheme(DefaultTheme, THEME.light, false),
+  dark: createNavigationTheme(DarkTheme, THEME.dark, true),
 };

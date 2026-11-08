@@ -89,7 +89,8 @@ frontend/dist/
 
 dist/
 
-
+node_modules*
+node_modules-sdk57-backup
 secrets/
 
 # parcel-bundler cache (https://parceljs.org/)

@@ -1,38 +1,78 @@
-//**Todo: add theme and switch
-
 import "@/global.css";
-// import { useColorScheme } from "@/hooks/use-color-scheme.web";
-// import { ThemeProvider } from "@react-navigation/native";
+
+import { ThemeProvider } from "@react-navigation/native";
 import { PortalHost } from "@rn-primitives/portal";
 import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useColorScheme } from "nativewind";
+import { View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 import StoreProvider from "./StoreProvider";
+import {
+  getThemeVariables,
+  NAV_THEME,
+  THEME,
+  type ColorScheme,
+} from "../lib/theme";
 
 export default function RootLayout() {
-  const isRegistered = false;
-  const isLoggedIn = false;
-  // const colorScheme = useColorScheme();
+  const isLoggedIn = true;
+
+  const { colorScheme } = useColorScheme();
+
+  const scheme: ColorScheme = colorScheme === "dark" ? "dark" : "light";
+
+  const colors = THEME[scheme];
+
   return (
     <StoreProvider>
-      {/* <ThemeProvider
-        value={NAV_THEME[colorScheme === "dark" ? "dark" : "light"]}
-      > */}
-      {/* <StatusBar style={colorScheme === "dark" ? "light" : "dark"} /> */}
+      <ThemeProvider value={NAV_THEME[scheme]}>
+        <View
+          style={[
+            { flex: 1, backgroundColor: colors.background },
+            getThemeVariables(scheme),
+          ]}
+        >
+          <StatusBar style={scheme === "dark" ? "light" : "dark"} />
 
-      <Stack>
-        <Stack.Screen
-          name="register"
-          options={{ headerShown: false }}
-          redirect={isRegistered}
-        />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="(tabs)"
-          options={{ headerShown: false }}
-          redirect={isRegistered}
-        />
-      </Stack>
-      <PortalHost />
-      {/* </ThemeProvider> */}
+          <SafeAreaView
+            style={{
+              flex: 1,
+              backgroundColor: colors.background,
+            }}
+          >
+            <Stack
+              screenOptions={{
+                contentStyle: {
+                  backgroundColor: colors.background,
+                },
+                headerStyle: {
+                  backgroundColor: colors.card,
+                },
+                headerTintColor: colors.foreground,
+                headerTitleStyle: {
+                  color: colors.foreground,
+                },
+              }}
+            >
+              <Stack.Protected guard={!isLoggedIn} redirectTo={"/(tabs)"}>
+                <Stack.Screen
+                  name="register"
+                  options={{ headerShown: false }}
+                />
+                <Stack.Screen name="login" options={{ headerShown: false }} />
+              </Stack.Protected>
+
+              <Stack.Protected guard={isLoggedIn} redirectTo={"/login"}>
+                <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+              </Stack.Protected>
+            </Stack>
+          </SafeAreaView>
+
+          <PortalHost />
+        </View>
+      </ThemeProvider>
     </StoreProvider>
   );
 }

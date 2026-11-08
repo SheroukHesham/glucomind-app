@@ -7,7 +7,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { router } from "expo-router";
 import { useRef } from "react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
-import { ScrollView, View } from "react-native";
+import { Platform, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Index() {
@@ -27,7 +27,7 @@ export default function Index() {
 
   return (
     <FormProvider {...form}>
-      <SafeAreaView className="flex-1">
+      <SafeAreaView className="flex-1 bg-background">
         <ScrollView
           className="flex-1"
           keyboardShouldPersistTaps="handled"
@@ -105,13 +105,26 @@ export default function Index() {
 
           <View className="flex-row items-center self-center gap-x-none">
             <Text className="text-foreground">Don't have an account? </Text>
-            <Button variant={"link"} className="p-0">
-              <Text className="text">Register</Text>
+            <Button
+              variant={"link"}
+              className="p-0"
+              onPress={() => {
+                router.push("/register");
+              }}
+            >
+              <Text
+                className={`${Platform.select({ android: "border-b border-b-primary", ios: "border-b border-b-primary" })}`}
+              >
+                Register
+              </Text>
             </Button>
           </View>
 
           <View className="w-full max-w-md self-center">
-            <Button onPress={form.handleSubmit(onSubmit)} className="shadow-md">
+            <Button
+              onPress={() => form.handleSubmit(onSubmit)()}
+              className="shadow-md"
+            >
               <Text>Login</Text>
             </Button>
           </View>

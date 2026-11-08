@@ -3,6 +3,8 @@ const { AppError } = require("./errors");
 const { SensorSimulator } = require("./sensor-simulator");
 const { createSensorRouter } = require("./sensor-routes");
 const { listActiveSensorIds } = require("./sensors");
+const { LiveHub } = require("./live/hub");
+const { attachClientStream } = require("./live/clientSocket");
 const WebSocket = require("ws");
 const express = require("express");
 const CgmService = require("./service.js");
@@ -11,6 +13,9 @@ const cgmService = new CgmService();
 const app = express();
 app.use(express.json());
 const PORT = 3000;
+
+// Live readings pushed to the mobile / web app (client WebSocket at /stream)
+const liveHub = new LiveHub();
 
 // Websocket connection
 const wss = new WebSocket.Server({ port: 4000 });
@@ -60,7 +65,14 @@ wss.on("connection", (ws) => {
         glucoseLevel,
       );
       reply(ws, { ok: true, trend: reading.trend ?? null });
-      // TODO: push { userId: reading.userId, glucoseLevel, trend } to the frontend
+      console.log(reading);
+      // push the reading to every open app session of this user
+      liveHub.publish(reading.userId, {
+        type: "reading",
+        glucoseLevel: reading.glucoseLevel,
+        trend: reading.trend ?? null,
+        timestamp: new Date().toISOString(),
+      });
     } catch (err) {
       if (err instanceof AppError) {
         return reply(ws, { ok: false, code: err.code, error: err.message });
@@ -143,6 +155,7 @@ app.get("/cgm/stats/last24h/:userId", async (req, res) => {
   }
 });
 
-app.listen(PORT, "0.0.0.0", () => {
+const server = app.listen(PORT, "0.0.0.0", () => {
   console.log("CGM Service on port", PORT);
 });
+attachClientStream(server, liveHub);

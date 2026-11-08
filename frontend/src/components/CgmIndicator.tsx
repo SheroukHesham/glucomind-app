@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import Svg, { Defs, LinearGradient, Path, Stop } from "react-native-svg";
 
-export default function GlucoseGauge({ value = 74 }: { value: number }) {
+export default function GlucoseGauge({ value }: { value: number }) {
   const minVal = 40;
   const maxVal = 300;
   const radius = 100;
@@ -62,7 +62,7 @@ export default function GlucoseGauge({ value = 74 }: { value: number }) {
 `;
 
   return (
-    <View style={styles.container} className="min-h-[500px]">
+    <View style={styles.container}>
       <View style={styles.gaugeWrapper}>
         <Svg width={cX * 2} height={cY + strokeWidth}>
           <Defs>
@@ -86,7 +86,7 @@ export default function GlucoseGauge({ value = 74 }: { value: number }) {
             strokeWidth={strokeWidth}
             strokeLinecap="round"
           />
-          {/* <Path d={fillSector} fill="#3AB119" stroke="none" opacity={0.2} /> */}
+          <Path d={fillSector} fill="#3AB119" stroke="none" opacity={0.2} />
           <Path
             d={fillSector}
             fill={"url(#rainbowGrad)"}
@@ -97,7 +97,7 @@ export default function GlucoseGauge({ value = 74 }: { value: number }) {
           <Path
             d={progressArc}
             fill="none"
-            stroke="#3AB119 "
+            stroke="#3AB119"
             strokeWidth={strokeWidth}
             strokeLinecap="round"
           />
@@ -119,10 +119,7 @@ export default function GlucoseGauge({ value = 74 }: { value: number }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0F120F",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
+    paddingHorizontal: 20,
   },
   gaugeWrapper: {
     position: "relative",
