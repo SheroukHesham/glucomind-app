@@ -73,8 +73,8 @@ export default function GlucoseGauge({ value }: { value: number }) {
               x2="100%" // End at the right
               y2="100%" // End at the bottom (Creates a diagonal gradient)
             >
-              <Stop offset="0%" stopColor="#1f1f20" stopOpacity="1" />
-              <Stop offset="50%" stopColor="#1F2E16" stopOpacity="1" />
+              <Stop offset="0%" stopColor="#3AB119s" stopOpacity="1" />
+              <Stop offset="50%" stopColor="#31b44b" stopOpacity="1" />
               <Stop offset="100%" stopColor="#202f1c" stopOpacity="1" />
             </LinearGradient>
           </Defs>
@@ -86,7 +86,7 @@ export default function GlucoseGauge({ value }: { value: number }) {
             strokeWidth={strokeWidth}
             strokeLinecap="round"
           />
-          <Path d={fillSector} fill="#3AB119" stroke="none" opacity={0.2} />
+          {/* <Path d={fillSector} fill="#3AB119" stroke="none" opacity={0.2} /> */}
           <Path
             d={fillSector}
             fill={"url(#rainbowGrad)"}
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
   },
   centerBadge: {
     position: "absolute",
-    bottom: -45, // Positioned at the flat base of the semicircle
+    bottom: -43, // Positioned at the flat base of the semicircle
     width: 100,
     height: 100,
     borderRadius: 50,

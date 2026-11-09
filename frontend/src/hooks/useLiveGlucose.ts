@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { AppState } from "react-native";
-import { CGM_STREAM_URL, fetchCurrentReading } from "../api/cgm";
+import { CGM_STREAM_URL, fetchCurrentReading } from "@/api/cgm";
 import {
   CgmStreamClient,
   CloseInfo,
   GlucoseReading,
   StreamStatus,
   newest,
-} from "../api/cgmStream";
+} from "@/api/cgmStream";
 
 const log = (...args: unknown[]) => {
   if (__DEV__) console.log("[live]", ...args);
@@ -32,24 +32,24 @@ export function useLiveGlucose(userId: string | null, token: string | null) {
   const [status, setStatus] = useState<StreamStatus>("idle");
   const [lastClose, setLastClose] = useState<CloseInfo | null>(null);
   const tokenRef = useRef(token);
-
   tokenRef.current = token;
-  if (token) {
-    try {
-      const payload = JSON.parse(
-        atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
-      );
 
-      log("WebSocket token claims:", {
-        sub: payload.sub,
-        iat: new Date(payload.iat * 1000).toISOString(),
-        exp: new Date(payload.exp * 1000).toISOString(),
-        currentTime: new Date().toISOString(),
-      });
-    } catch {
-      log("Could not decode WebSocket token claims");
-    }
-  }
+  // if (token) {
+  //   try {
+  //     const payload = JSON.parse(
+  //       atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")),
+  //     );
+
+  //     log("WebSocket token claims:", {
+  //       sub: payload.sub,
+  //       iat: new Date(payload.iat * 1000).toISOString(),
+  //       exp: new Date(payload.exp * 1000).toISOString(),
+  //       currentTime: new Date().toISOString(),
+  //     });
+  //   } catch {
+  //     log("Could not decode WebSocket token claims");
+  //   }
+  // }
   useEffect(() => {
     if (!userId || !token) {
       log(

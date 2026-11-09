@@ -46,6 +46,9 @@ module.exports = {
       borderWidth: {
         hairline: hairlineWidth(),
       },
+      letterSpacing: {
+        wide: "2px",
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },

@@ -106,7 +106,7 @@ services:
       - KAFKA_BROKER=kafka:9092
       - CGM_TIMEZONE=Africa/Cairo
       - CGM_HISTORY_RETENTION_DAYS=90
-      - SIM_INTERVAL_SECONDS=10
+      - SIM_INTERVAL_SECONDS=300
       - SIMULATE_SENSORS=true
       - JWT_SECRET=${JWT_SECRET:?Set JWT_SECRET in the root .env (see .env.example)}
     volumes:
@@ -259,6 +259,26 @@ services:
   # REACT_NATIVE_PACKAGER_HOSTNAME must be your computer's LAN IP, otherwise the QR code
   # contains the container's private Docker IP and the phone cannot reach it.
   # ---------------------------------------------------------------------------
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     target: dev
+  #   container_name: frontend
+  #   ports:
+  #     - "8081:8081"
+  #   environment:
+  #     - REACT_NATIVE_PACKAGER_HOSTNAME=${HOST_IP:-localhost}
+  #     - EXPO_PUBLIC_API_URL=${EXPO_PUBLIC_API_URL:-http://localhost:8080/api}
+  #     - EXPO_NO_TELEMETRY=1
+  #   volumes:
+  #     - ./frontend:/app
+  #     - /app/node_modules
+  #   stdin_open: true # lets the QR code render in `docker-compose logs frontend`
+  #   tty: true
+  #   command: npx expo start ${EXPO_START_FLAGS:---lan}
+  #   depends_on:
+  #     - gateway
+
   frontend:
     build:
       context: ./frontend
@@ -270,10 +290,15 @@ services:
       - REACT_NATIVE_PACKAGER_HOSTNAME=${HOST_IP:-localhost}
       - EXPO_PUBLIC_API_URL=${EXPO_PUBLIC_API_URL:-http://localhost:8080/api}
       - EXPO_NO_TELEMETRY=1
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-    stdin_open: true # lets the QR code render in `docker-compose logs frontend`
+    develop:
+      watch:
+        - action: sync
+          path: ./frontend
+          target: /app
+          ignore: [node_modules/]
+        - action: rebuild
+          path: ./frontend/package.json
+    stdin_open: true
     tty: true
     command: npx expo start ${EXPO_START_FLAGS:---lan}
     depends_on:

@@ -2,6 +2,7 @@ import { Drawer } from "expo-router/drawer";
 import { useColorScheme } from "nativewind";
 
 import { THEME, type ColorScheme } from "../../lib/theme";
+import { Text } from "react-native";
 
 export default function TabLayout() {
   const { colorScheme } = useColorScheme();
@@ -46,6 +47,7 @@ export default function TabLayout() {
       <Drawer.Screen
         name="index"
         options={{
+          headerTitle: "GlucoMind",
           drawerLabel: "Dashboard",
           title: "Dashboard",
         }}
@@ -54,8 +56,25 @@ export default function TabLayout() {
       <Drawer.Screen
         name="about"
         options={{
+          headerTitle: "GlucoMind",
           drawerLabel: "About Us",
           title: "About Us",
+        }}
+      />
+      <Drawer.Screen
+        name="meals"
+        options={{
+          headerTitle: "GlucoMind",
+          drawerLabel: "Meals",
+          title: "Meals",
+        }}
+      />
+      <Drawer.Screen
+        name="medications"
+        options={{
+          headerTitle: "GlucoMind",
+          drawerLabel: "Medications",
+          title: "Medications",
         }}
       />
     </Drawer>

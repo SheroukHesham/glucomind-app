@@ -66,6 +66,8 @@ export async function apiFetch<T = void>(
   return data as T;
 }
 
+// api/client.ts
+
 function safeJson(text: string): unknown {
   try {
     return JSON.parse(text);
