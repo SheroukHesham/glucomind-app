@@ -108,7 +108,7 @@ export default function GlucoseGauge({ value }: { value: number }) {
 
         {/* Center Value Badge Overlay */}
         <View style={styles.centerBadge}>
-          <Text style={styles.valueText}>{value}</Text>
+          <Text style={styles.valueText}>{value !== 0 ? value : "-"}</Text>
           <Text style={styles.unitText}>mg/dL</Text>
         </View>
       </View>

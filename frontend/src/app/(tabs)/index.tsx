@@ -23,7 +23,7 @@ export default function Index() {
   const userId = "6a51438c0d07989baea70cd5";
   const { reading, status } = useLiveGlucose(
     userId,
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YTUxNDM4YzBkMDc5ODliYWVhNzBjZDUiLCJpYXQiOjE3OTQyMDk3NzUsImV4cCI6MTc5NDIxMzM3NX0.4Dtk6rEjIHdrDlDf0Z0AIt5Nvm_tEEXeYnp5Ek2_YuQ",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YTUxNDM4YzBkMDc5ODliYWVhNzBjZDUiLCJpYXQiOjE3OTQzMDQzNTksImV4cCI6MTc5NDMwNzk1OX0.9wsZPw82AHEN6IKHxqnc7Un7Tgx1uWasGbB5XkHBI7w",
   );
 
   const { data, error, isFetching, isFetched } = useQuery({
@@ -90,7 +90,7 @@ export default function Index() {
             }}
           >
             <Text className="text-center justify-self-center">Go to Meals</Text>
-            <ArrowRight className="" />
+            <ArrowRight />
           </Button>
         </View>
 
@@ -111,7 +111,7 @@ export default function Index() {
             <Text className="text-center justify-self-center">
               Go to Medications
             </Text>
-            <ArrowRight className="" />
+            <ArrowRight />
           </Button>
         </View>
       </ScrollView>

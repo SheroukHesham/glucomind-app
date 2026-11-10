@@ -6,18 +6,24 @@ import {
 } from "../config";
 import { Medication } from "../models/medication";
 import { notifyUser } from "./notify";
-import { reminderText } from "./pattern";
+import { localNow, reminderText, reminderWindow, slotsOf } from "./pattern";
 import {
   JOB_RECONCILE,
   JOB_SEND_REMINDER,
   REMINDER_QUEUE,
   reconcileReminders,
-  removeReminder,
+  removeReminderSlot,
+  resolveTimezone,
 } from "./scheduler";
 
-async function handleReminder(
-  job: Job<{ medicationId: string }>,
-): Promise<string> {
+type ReminderJobData = { medicationId: string; slot?: string };
+
+async function handleReminder(job: Job<ReminderJobData>): Promise<string> {
+  const { medicationId, slot } = job.data;
+
+  // Scheduler created by the previous (single-slot) version. The startup reconcile replaces it.
+  if (!slot) return "skipped: legacy scheduler";
+
   // The job was due at (creation time + delay). Drop it if an outage made it hopelessly late.
   const dueAt = job.timestamp + (job.delay ?? 0);
   const lateByMs = Date.now() - dueAt;
@@ -26,23 +32,40 @@ async function handleReminder(
   }
 
   // Read the medication NOW, so edits made after scheduling are respected.
-  const medication = await Medication.findOne({
-    id: job.data.medicationId,
-  }).lean();
+  const medication = await Medication.findOne({ id: medicationId }).lean();
   if (!medication) {
-    await removeReminder(job.data.medicationId); // stale scheduler of a deleted medication
+    await removeReminderSlot(medicationId, slot); // stale scheduler of a deleted medication
     return "skipped: medication deleted";
   }
+  if (!slotsOf(medication).includes(slot)) {
+    await removeReminderSlot(medicationId, slot); // this intake time was edited away
+    return "skipped: intake time no longer scheduled";
+  }
 
-  const { title, body } = reminderText(medication.name, medication.frequency);
+  // Enforce the course window in the user's local calendar.
+  const tz = await resolveTimezone(medication.userId);
+  const window = reminderWindow(medication, localNow(tz));
+  if (window === "expired") {
+    await removeReminderSlot(medicationId, slot); // course finished (or one-time dose is not today)
+    return "skipped: outside the medication's date range, scheduler removed";
+  }
+  if (window === "upcoming") return "skipped: course has not started yet";
+
+  const { title, body } = reminderText(medication.name, medication.frequency, {
+    dosage: medication.dosage,
+    notes: medication.notes,
+  });
   const delivered = await notifyUser(
     medication.userId,
     { title, body },
-    {
-      type: "medication-reminder",
-      medicationId: medication.id,
-    },
+    { type: "medication-reminder", medicationId: medication.id, slot },
   );
+
+  // A one-time dose is done: don't let its yearly cron fire again.
+  if (medication.frequency === "once") {
+    await removeReminderSlot(medicationId, slot);
+  }
+
   return delivered > 0
     ? `sent to ${delivered} device(s)`
     : "skipped: user has no devices";
@@ -51,7 +74,7 @@ async function handleReminder(
 export async function processJob(job: Job): Promise<string> {
   switch (job.name) {
     case JOB_SEND_REMINDER:
-      return handleReminder(job as Job<{ medicationId: string }>);
+      return handleReminder(job as Job<ReminderJobData>);
     case JOB_RECONCILE:
       return JSON.stringify(await reconcileReminders());
     default:

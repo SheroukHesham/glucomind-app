@@ -130,7 +130,13 @@ export interface MealPlan {
 export interface IMedication {
   _id: string;
   userId: string;
-  frequency: TMedicationFrequency;
   name: string;
-  time: string;
+  dosage?: string;
+  notes?: string;
+  frequency: TMedicationFrequency;
+  times: string[];
+  startDate?: string;
+  endDate?: string;
+  dayOfWeek?: number;
+  dayOfMonth?: number;
 }

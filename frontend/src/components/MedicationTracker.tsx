@@ -29,7 +29,7 @@ const MedicationTracker = ({ name, time, active }: IProps) => {
     >
       <View className="flex-col flex-1  justify-center gap-x-2 ">
         <Text className=" text-xl flex-1 capitalize">{name}</Text>
-        <Text className="tracking-wide text-base text-primary font-semibold">
+        <Text className="tracking-wider text-base text-primary font-semibold">
           At {time}
         </Text>
       </View>
