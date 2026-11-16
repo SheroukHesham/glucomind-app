@@ -14,7 +14,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: cn(
-          "bg-primary active:bg-primary/90 shadow-sm shadow-primary/5  ",
+          "bg-[#079e23] active:bg-primary/90 shadow-sm shadow-primary/5  ",
           Platform.select({ web: "hover:bg-primary/90" }),
         ),
         destructive: cn(
@@ -27,6 +27,12 @@ const buttonVariants = cva(
           "border-border bg-background active:bg-accent dark:bg-input/30 dark:border-input dark:active:bg-input/50 border shadow-sm shadow-black/5",
           Platform.select({
             web: "hover:bg-accent dark:hover:bg-input/50",
+          }),
+        ),
+        outline_destructive: cn(
+          "border-destructive bg-background active:bg-input dark:bg-destructive/30 dark:border-destructive dark:active:bg-input/50 border shadow-sm shadow-black/5",
+          Platform.select({
+            // web: "hover:bg-destructive/10 dark:hover:bg-destructive/50",
           }),
         ),
         secondary: cn(
@@ -75,6 +81,10 @@ const buttonTextVariants = cva(
         outline: cn(
           "group-active:text-accent-foreground",
           Platform.select({ web: "group-hover:text-accent-foreground" }),
+        ),
+        outline_destructive: cn(
+          "group-active:text-destructive text-destructive",
+          Platform.select({ web: "group-hover:text-destructive" }),
         ),
         secondary: "text-secondary-foreground",
         ghost: "group-active:text-accent-foreground",

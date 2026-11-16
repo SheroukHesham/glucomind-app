@@ -31,10 +31,12 @@ create_topic user-settings 3 1 cleanup.policy=compact
 
 # ---- planned (from the earlier designs): uncomment when you implement them
 create_topic device-tokens 3 1 cleanup.policy=compact
+create_topic registration 3 1
 create_topic registration.medication.command 3 1
 create_topic registration.diet.command 3 1
 create_topic registration.emergency.command 3 1
 create_topic registration.result 3 1
+create_topic registration.completed 3 1
 
 echo "Topics ready:"
 "$KAFKA_TOPICS" --bootstrap-server "$BOOTSTRAP" --list

@@ -4,7 +4,7 @@ import { medicationKeys } from "@/lib/queries/keys";
 import { useQuery } from "@tanstack/react-query";
 import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { formatMedicationTime } from "../../../functions";
+import { formatMedicationTime } from "../../functions";
 import MedicationTracker from "@/components/MedicationTracker";
 import MedicationCard from "@/components/MedicationCard";
 
@@ -24,8 +24,6 @@ const Medications = () => {
   if (isFetching || isLoading) return <Text>Loading</Text>;
 
   const renderMedications = medications?.map((medication) => {
-    // const { formattedTime, active } = formatMedicationTime(medication.times[0]);
-
     return <MedicationCard key={medication._id} medication={medication} />;
   });
 

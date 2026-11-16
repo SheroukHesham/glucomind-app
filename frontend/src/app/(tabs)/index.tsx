@@ -16,7 +16,7 @@ import { medicationKeys, recommenderKeys } from "@/lib/queries/keys";
 import { Checkbox } from "@/components/ui/checkbox";
 import MedicationTracker from "@/components/MedicationTracker";
 import { getUserMedications } from "@/api/medications";
-import { formatMedicationTime } from "../../../functions";
+import { formatMedicationTime } from "../../functions";
 
 //todo: trend arrow
 export default function Index() {
@@ -30,6 +30,8 @@ export default function Index() {
     queryKey: recommenderKeys.getUserMealPlan(userId),
     queryFn: () => getUserMealPlan(userId),
   });
+
+  //todo: change endpoint to get today's medications sorted according to time of intake, multiple times are shown as separate trackers
   const { data: medications } = useQuery({
     queryKey: medicationKeys.getUserMedications(userId),
     queryFn: () => getUserMedications(userId),
@@ -54,7 +56,7 @@ export default function Index() {
   );
 
   const renderMedications = medications?.map((medication) => {
-    const { formattedTime, active } = formatMedicationTime(medication.time);
+    const { formattedTime, active } = formatMedicationTime(medication.times[0]);
 
     return (
       <MedicationTracker
@@ -96,11 +98,7 @@ export default function Index() {
 
         <View className="flex-col gap-y-3 w-full ">
           <Text variant={"h3"}>Today's Medications</Text>
-          <View className="flex-col gap-6">
-            {renderMedications}
-            {renderMedications}
-            {renderMedications}
-          </View>
+          <View className="flex-col gap-6">{renderMedications}</View>
           <Button
             variant={"link"}
             className="no-underline items-end flex self-end w-fit"

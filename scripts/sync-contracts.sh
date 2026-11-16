@@ -27,9 +27,10 @@ sync() {
   done
 }
 
-sync user-service       topics.ts device-tokens.ts medication-creation-events.ts user-settings.ts
+sync user-service       topics.ts device-tokens.ts medication-creation-events.ts user-settings.ts registration.ts
 sync cgm-service        topics.ts glucose-events.ts
-sync emergency-service  topics.ts glucose-events.ts device-tokens.ts
-sync medication-service topics.ts device-tokens.ts user-settings.ts
+sync emergency-service  topics.ts glucose-events.ts device-tokens.ts registration.ts
+sync medication-service topics.ts device-tokens.ts user-settings.ts registration.ts
+sync 
 
 exit $STATUS

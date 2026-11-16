@@ -7,6 +7,11 @@ export const TOPICS = {
   USER_CREATION_EVENTS: "user-creation-events",
   DEVICE_TOKENS: "device-tokens",
   USER_SETTINGS: "user-settings",
+  REGISTRATION: "registration",
+  REGISTRATION_MEDICATION_COMMAND: "registration.medication.command",
+  REGISTRATION_DIET_COMMAND: "registration.diet.command",
+  REGISTRATION_RESULT: "registration.result",
+  REGISTRATION_COMPLETED: "registration.completed",
 } as const;
 
 export type Topic = (typeof TOPICS)[keyof typeof TOPICS];

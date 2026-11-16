@@ -13,6 +13,7 @@ export default function TabLayout() {
 
   return (
     <Drawer
+      backBehavior="history"
       screenOptions={{
         headerStyle: {
           backgroundColor: colors.card,
@@ -75,6 +76,16 @@ export default function TabLayout() {
           headerTitle: "GlucoMind",
           drawerLabel: "Medications",
           title: "Medications",
+        }}
+      />
+      <Drawer.Screen
+        name="medication-details"
+        options={{
+          title: "Medication Details",
+          drawerLabel: "Medication Details",
+          drawerItemStyle: {
+            display: "none",
+          },
         }}
       />
     </Drawer>
