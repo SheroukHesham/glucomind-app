@@ -6,18 +6,18 @@ import {
   StepCommand,
   StepPayloads,
   StepResult,
-} from "./Kafka/contracts/registration";
+} from "../Kafka/contracts/registration";
 import {
   activateUser,
   createPendingUser,
   deletePendingUser,
   isDuplicateKeyError,
-} from "./db";
+} from "../db";
 import { hashPassword } from "../auth/password";
 import {
   publishRegistrationCommand,
   publishRegistrationCompleted,
-} from "./Kafka/producers";
+} from "../Kafka/producers";
 import { Saga, SagaDoc } from "./saga.model";
 import { RegistrationRequest } from "./validation";
 
@@ -100,10 +100,10 @@ export class RegistrationSaga {
     const userId = randomBytes(12).toString("hex"); // a valid MongoDB ObjectId, created before anything else
     const passwordHash = await hashPassword(request.password);
     const payloads: StepPayloads = {
-      medication: {
-        timezone: request.timezone,
-        medications: request.medications,
-      },
+      // medication: {
+      //   timezone: request.timezone,
+      //   medications: request.medications,
+      // },
       diet: {
         timezone: request.timezone,
         age: request.age,

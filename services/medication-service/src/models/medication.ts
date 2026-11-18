@@ -40,8 +40,6 @@ const medicationSchema = new Schema(
         message: "times must be HH:mm",
       },
     },
-    /** @deprecated single-slot field of the old schema. Read as a fallback, never written. */
-    time: { type: String, match: TIME_RE },
 
     // Calendar days in the user's local timezone, "YYYY-MM-DD", both inclusive.
     // "once": startDate is the day. Others: optional course window (no endDate = open-ended).

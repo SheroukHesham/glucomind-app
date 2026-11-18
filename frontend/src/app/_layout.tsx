@@ -16,6 +16,7 @@ import {
   type ColorScheme,
 } from "../lib/theme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Toast from "react-native-toast-message";
 
 export default function RootLayout() {
   const isLoggedIn = true;
@@ -76,6 +77,7 @@ export default function RootLayout() {
             </SafeAreaView>
 
             <PortalHost />
+            <Toast />
           </View>
         </ThemeProvider>
       </StoreProvider>

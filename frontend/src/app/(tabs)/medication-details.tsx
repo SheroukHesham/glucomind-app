@@ -1,30 +1,30 @@
-import { useLocalSearchParams, Stack, router } from "expo-router";
-import { Pressable, ScrollView, View } from "react-native";
+import { useLocalSearchParams, router } from "expo-router";
+import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { ArrowLeft, Edit3 } from "lucide-react-native";
+import { useEffect, useState } from "react";
 
 import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
 import { IMedication } from "@/interfaces";
 import { daysMap, formatMedicationTime } from "../../functions";
-import { useState } from "react";
+import EditMedicationForm from "@/components/EditMedicationForm";
+import { useGetMedicationDetails } from "@/lib/queries/medications";
 
 const MedicationDetails = () => {
-  const { medication } = useLocalSearchParams<{
-    medication: string;
+  const { userId, medicationId } = useLocalSearchParams<{
+    userId: string;
+    medicationId: string;
   }>();
+
+  const {
+    data: medication,
+    isError,
+    isFetching,
+  } = useGetMedicationDetails(userId, medicationId);
 
   const [editing, setIsEditing] = useState(false);
 
-  let medicationData: IMedication | null = null;
-
-  try {
-    medicationData = medication ? JSON.parse(medication) : null;
-  } catch (error) {
-    console.error("Failed to parse medication:", error);
-  }
-
-  if (!medicationData) {
+  if (isError) {
     return (
       <SafeAreaView className="flex-1 bg-background items-center justify-center px-4">
         <Text>Medication details could not be loaded.</Text>
@@ -35,6 +35,11 @@ const MedicationDetails = () => {
       </SafeAreaView>
     );
   }
+  console.log(medication);
+  useEffect(() => {}, [medication]);
+
+  if (isFetching) return <Text>Loading</Text>;
+  if (!medication) return <Text>no medication</Text>;
 
   const {
     name,
@@ -46,101 +51,49 @@ const MedicationDetails = () => {
     startDate,
     endDate,
     notes,
-  } = medicationData;
-
-  console.log(editing);
+  } = medication;
 
   return (
     <SafeAreaView className="flex-1 bg-background">
       <ScrollView
-        className="flex-1 bg-background"
-        contentContainerClassName="px-4 py-6 gap-y-5"
+        style={{ flex: 1 }}
+        contentContainerStyle={{
+          paddingHorizontal: 16,
+          paddingVertical: 20,
+          gap: 20,
+          flexGrow: 1,
+        }}
+        showsVerticalScrollIndicator
+        keyboardShouldPersistTaps="handled"
+        nestedScrollEnabled
       >
-        {!editing ? (
-          <View className="rounded-lg bg-secondary border border-border p-5 gap-y-3">
-            <Text className="text-2xl capitalize font-bold">{name}</Text>
-
-            {dosage && (
-              <View>
-                <Text variant="muted">Dosage</Text>
-                <Text className="font-semibold">{dosage}</Text>
-              </View>
-            )}
-
-            <View>
-              <Text variant="muted">Frequency</Text>
-              <Text className="font-semibold capitalize">
-                {frequency === "times_per_day"
-                  ? `${times?.length ?? 0} times a day`
-                  : frequency}
-                {frequency === "weekly" &&
-                  dayOfWeek !== undefined &&
-                  ` on ${daysMap[dayOfWeek]}`}
-                {frequency === "monthly" &&
-                  dayOfMonth &&
-                  ` on the ${dayOfMonth}`}
-              </Text>
-            </View>
-
-            <View>
-              <Text variant="muted">Scheduled Times</Text>
-
-              {times?.length ? (
-                times.map((time, index) => (
-                  <Text key={`${time}-${index}`} className="font-semibold">
-                    {formatMedicationTime(time).formattedTime}
-                  </Text>
-                ))
-              ) : (
-                <Text>No scheduled times</Text>
-              )}
-            </View>
-
-            <View>
-              <Text variant="muted">Start Date</Text>
-              <Text className="font-semibold">
-                {startDate
-                  ? new Date(startDate).toLocaleDateString()
-                  : "Not specified"}
-              </Text>
-            </View>
-
-            <View>
-              <Text variant="muted">End Date</Text>
-              <Text className="font-semibold">
-                {endDate
-                  ? new Date(endDate).toLocaleDateString()
-                  : "No end date"}
-              </Text>
-            </View>
-
-            {notes && (
-              <View>
-                <Text variant="muted">Notes</Text>
-                <Text>{notes}</Text>
-              </View>
-            )}
-          </View>
+        {editing ? (
+          <EditMedicationForm
+            medication={medication}
+            setIsEditing={setIsEditing}
+          />
         ) : (
-          <View className="rounded-lg bg-destructive border border-border p-5 gap-y-3">
+          <View className="rounded-lg bg-secondary border border-border p-5  gap-y-3 ">
             <Text className="text-2xl capitalize font-bold">{name}</Text>
 
             {dosage && (
               <View>
-                <Text variant="muted">Dosage</Text>
+                <Text variant="mutedLarge">Dosage</Text>
                 <Text className="font-semibold">{dosage}</Text>
               </View>
             )}
 
             <View>
-              <Text variant="muted">Frequency</Text>
+              <Text variant="mutedLarge">Frequency</Text>
               <Text className="font-semibold capitalize">
                 {frequency === "times_per_day"
                   ? `${times?.length ?? 0} times a day`
                   : frequency}
+
                 {frequency === "weekly" &&
                   dayOfWeek !== undefined &&
                   ` on ${daysMap[dayOfWeek]}`}
+
                 {frequency === "monthly" &&
                   dayOfMonth &&
                   ` on the ${dayOfMonth}`}
@@ -148,7 +101,7 @@ const MedicationDetails = () => {
             </View>
 
             <View>
-              <Text variant="muted">Scheduled Times</Text>
+              <Text variant="mutedLarge">Scheduled Times</Text>
 
               {times?.length ? (
                 times.map((time, index) => (
@@ -162,7 +115,7 @@ const MedicationDetails = () => {
             </View>
 
             <View>
-              <Text variant="muted">Start Date</Text>
+              <Text variant="mutedLarge">Start Date</Text>
               <Text className="font-semibold">
                 {startDate
                   ? new Date(startDate).toLocaleDateString()
@@ -171,7 +124,7 @@ const MedicationDetails = () => {
             </View>
 
             <View>
-              <Text variant="muted">End Date</Text>
+              <Text variant="mutedLarge">End Date</Text>
               <Text className="font-semibold">
                 {endDate
                   ? new Date(endDate).toLocaleDateString()
@@ -181,18 +134,29 @@ const MedicationDetails = () => {
 
             {notes && (
               <View>
-                <Text variant="muted">Notes</Text>
+                <Text variant="mutedLarge">Notes</Text>
                 <Text>{notes}</Text>
               </View>
             )}
           </View>
         )}
-        <Button onClick={() => setIsEditing(true)}>
-          <Text>Edit Medication</Text>
-        </Button>
-        <Button variant={"outline_destructive"}>
-          <Text className="">Delete Medication</Text>
-        </Button>
+
+        {!editing && (
+          <>
+            <Button onPress={() => setIsEditing(true)}>
+              <Text>Edit Medication</Text>
+            </Button>
+
+            <Button
+              variant="outline_destructive"
+              onPress={() => {
+                console.log("deleting");
+              }}
+            >
+              <Text>Delete Medication</Text>
+            </Button>
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

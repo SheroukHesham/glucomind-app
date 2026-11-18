@@ -1,4 +1,5 @@
 import * as yup from "yup";
+import { MEDICATION_FREQUENCIES, TMedicationFrequency } from "@/types";
 
 export const loginSchema = yup.object({
   email: yup
@@ -64,3 +65,26 @@ export const registerSchema = (existingEmails: string[]) =>
 export type RegisterFormValues = yup.InferType<
   ReturnType<typeof registerSchema>
 >;
+
+//todo: test that time is correct format as per backend
+//todo: if frequency is weekly, must chose day of week,
+//todo: if frequency is monthly, must chose day of month,
+export const medicationSchema = yup.object({
+  name: yup.string().required("Medication name is required."),
+  dosage: yup.string().optional(),
+  frequency: yup
+    .string()
+    .oneOf(MEDICATION_FREQUENCIES, "You must choose from list below")
+    .required("Medication Frequency is Required"),
+  notes: yup.string().optional(),
+  times: yup
+    .array()
+    .of(yup.string().required())
+    .required("You must assign at least 1 time of intake"),
+  startDate: yup.string().required("You must choose a starting date."),
+  endDate: yup.string().optional(),
+  dayOfWeek: yup.number(),
+  dayOfMonth: yup.number(),
+});
+
+export type MedicationFormValues = yup.InferType<typeof medicationSchema>;

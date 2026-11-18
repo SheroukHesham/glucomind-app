@@ -5,7 +5,7 @@ import {
   SagaStatus,
   StepPayloads,
   StepStatus,
-} from "./Kafka/contracts/registration";
+} from "../Kafka/contracts/registration";
 
 /**
  * One document per registration attempt. It is the memory of the saga: if the service crashes or

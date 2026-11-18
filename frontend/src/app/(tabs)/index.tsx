@@ -17,6 +17,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import MedicationTracker from "@/components/MedicationTracker";
 import { getUserMedications } from "@/api/medications";
 import { formatMedicationTime } from "../../functions";
+import { useColorScheme } from "nativewind";
 
 //todo: trend arrow
 export default function Index() {
@@ -25,6 +26,7 @@ export default function Index() {
     userId,
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2YTUxNDM4YzBkMDc5ODliYWVhNzBjZDUiLCJpYXQiOjE3OTQzMDQzNTksImV4cCI6MTc5NDMwNzk1OX0.9wsZPw82AHEN6IKHxqnc7Un7Tgx1uWasGbB5XkHBI7w",
   );
+  const { colorScheme } = useColorScheme();
 
   const { data, error, isFetching, isFetched } = useQuery({
     queryKey: recommenderKeys.getUserMealPlan(userId),
@@ -91,8 +93,15 @@ export default function Index() {
               router.push("/(tabs)/meals");
             }}
           >
-            <Text className="text-center justify-self-center">Go to Meals</Text>
-            <ArrowRight />
+            <View className="flex-row items-center">
+              <Text className="text-center justify-self-center">
+                Go to Meals
+              </Text>
+              <ArrowRight
+                size={16}
+                color={colorScheme === "dark" ? "#4C9B62" : "#35784A"}
+              />
+            </View>
           </Button>
         </View>
 
@@ -106,10 +115,15 @@ export default function Index() {
               router.push("/(tabs)/medications");
             }}
           >
-            <Text className="text-center justify-self-center">
-              Go to Medications
-            </Text>
-            <ArrowRight />
+            <View className="flex-row items-center">
+              <Text className="text-center justify-self-center">
+                Go to Medications
+              </Text>
+              <ArrowRight
+                size={16}
+                color={colorScheme === "dark" ? "#4C9B62" : "#35784A"}
+              />
+            </View>
           </Button>
         </View>
       </ScrollView>

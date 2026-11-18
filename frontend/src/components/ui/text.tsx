@@ -40,6 +40,7 @@ const textVariants = cva(
         large: "text-lg font-semibold",
         small: "text-sm font-medium leading-none",
         muted: "text-muted-foreground text-sm",
+        mutedLarge: "text-muted-foreground text-lg font-semibold",
       },
     },
     defaultVariants: {

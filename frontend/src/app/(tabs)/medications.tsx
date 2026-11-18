@@ -1,12 +1,8 @@
-import { getUserMedications } from "@/api/medications";
 import { Text } from "@/components/ui/text";
-import { medicationKeys } from "@/lib/queries/keys";
-import { useQuery } from "@tanstack/react-query";
 import { ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { formatMedicationTime } from "../../functions";
-import MedicationTracker from "@/components/MedicationTracker";
 import MedicationCard from "@/components/MedicationCard";
+import { useMedications } from "@/lib/queries/medications";
 
 const Medications = () => {
   const userId = "6a51438c0d07989baea70cd5";
@@ -16,10 +12,8 @@ const Medications = () => {
     error,
     isFetching,
     isLoading,
-  } = useQuery({
-    queryKey: medicationKeys.getUserMedications(userId),
-    queryFn: () => getUserMedications(userId),
-  });
+  } = useMedications(userId);
+
   //todo:change to skeleton
   if (isFetching || isLoading) return <Text>Loading</Text>;
 

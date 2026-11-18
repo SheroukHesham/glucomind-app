@@ -89,7 +89,7 @@ export default function Index() {
           </Button>
         ) : (
           <Button
-            onClick={() => form.handleSubmit(onFinalSubmit)()}
+            onPress={() => form.handleSubmit(onFinalSubmit)()}
             disabled={isSubmitting}
           >
             <Text className="text-primary-foreground font-semibold ">

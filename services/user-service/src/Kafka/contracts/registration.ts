@@ -10,12 +10,13 @@ import { TOPICS, Topic } from "./topics";
  * add its name here, add its command topic below and its slice type further down. Nothing else in the
  * orchestrator has to change.
  */
-export const REGISTRATION_STEPS = ["medication", "diet"] as const;
+// export const REGISTRATION_STEPS = ["medication", "diet"] as const;
+export const REGISTRATION_STEPS = ["diet"] as const;
 export type RegistrationStep = (typeof REGISTRATION_STEPS)[number];
 
 /** Topic that carries the commands of each step (key = registrationId). */
 export const COMMAND_TOPIC: Record<RegistrationStep, Topic> = {
-  medication: TOPICS.REGISTRATION_MEDICATION_COMMAND,
+  // medication: TOPICS.REGISTRATION_MEDICATION_COMMAND,
   diet: TOPICS.REGISTRATION_DIET_COMMAND,
 };
 /** Participants answer here (key = registrationId). */
@@ -26,20 +27,25 @@ export const REGISTRATION_COMPLETED_TOPIC = TOPICS.REGISTRATION_COMPLETED;
 /* ---------------------------------------------------------------------------------------------
  * The slice of the registration form each service receives.
  * ------------------------------------------------------------------------------------------- */
-export type MedicationFrequency = "daily" | "weekly" | "monthly";
+// export type MedicationFrequency = "once" |"daily" | "weekly" | "monthly" | "times_per_day";
 
-export interface MedicationInput {
-  name: string;
-  time: string; // "HH:mm", in the user's timezone
-  frequency?: MedicationFrequency;
-  dayOfWeek?: number; // 0 = Sunday (weekly)
-  dayOfMonth?: number; // monthly
-}
+// interface MedicationInput {
+//   id?: string;
+//   name: string;
+//   frequency: MedicationFrequency;
+//   times: string[];
+//   dosage?: string;
+//   notes?: string;
+//   startDate?: string;
+//   endDate?: string;
+//   dayOfWeek?: number;
+//   dayOfMonth?: number;
+// }
 
-export interface MedicationSlice {
-  timezone: string; // IANA name
-  medications: MedicationInput[]; // may be empty
-}
+// export interface MedicationSlice {
+//   timezone: string; // IANA name
+//   medications: MedicationInput[]; // may be empty
+// }
 
 export interface DietSlice {
   timezone: string;
@@ -53,7 +59,7 @@ export interface DietSlice {
 }
 
 export interface StepPayloads {
-  medication: MedicationSlice;
+  // medication: MedicationSlice;
   diet: DietSlice;
 }
 

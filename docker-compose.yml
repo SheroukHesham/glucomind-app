@@ -287,9 +287,12 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - REACT_NATIVE_PACKAGER_HOSTNAME=${HOST_IP:-localhost}
-      - EXPO_PUBLIC_API_URL=${EXPO_PUBLIC_API_URL:-http://localhost:8080/api}
-      - EXPO_NO_TELEMETRY=1
+      REACT_NATIVE_PACKAGER_HOSTNAME: ${HOST_IP}
+      EXPO_PUBLIC_API_URL: ${EXPO_PUBLIC_API_URL}
+      EXPO_NO_TELEMETRY: "1"
+      # - REACT_NATIVE_PACKAGER_HOSTNAME=${HOST_IP:-localhost}
+      # - EXPO_PUBLIC_API_URL=${EXPO_PUBLIC_API_URL:-http://localhost:8080/api}
+      # - EXPO_NO_TELEMETRY=1
     develop:
       watch:
         - action: sync

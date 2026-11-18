@@ -21,7 +21,7 @@ const MedicationTracker = ({ name, time, active }: IProps) => {
         active && {
           shadowColor: "#4C9B62",
           shadowOffset: { width: 0, height: 0 },
-          shadowOpacity: 0.9,
+          shadowOpacity: 1,
           shadowRadius: 12,
           elevation: 15,
         }
@@ -37,8 +37,8 @@ const MedicationTracker = ({ name, time, active }: IProps) => {
         variant={"outline"}
         className={`w-fit`}
         style={{
-          backgroundColor: tracked ? "#279305" : "",
-          borderColor: tracked ? "#4C9B62" : "",
+          backgroundColor: tracked ? "#279305" : "#171C18",
+          borderColor: tracked ? "#4C9B62" : "#344238",
         }}
 
         onPress={() => {

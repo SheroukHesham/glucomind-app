@@ -1,4 +1,4 @@
-import { TMedicationFrequency } from "@/types";
+import { MEDICATION_FREQUENCIES, TMedicationFrequency } from "@/types";
 import { RegisterFormValues } from "@/validations";
 import { UseFormReturn } from "react-hook-form";
 import { KeyboardTypeOptions } from "react-native";
@@ -135,8 +135,13 @@ export interface IMedication {
   notes?: string;
   frequency: TMedicationFrequency;
   times: string[];
-  startDate?: string;
+  startDate: string;
   endDate?: string;
   dayOfWeek?: number;
   dayOfMonth?: number;
+}
+
+export interface ISelectMedicationFrequencyList {
+  label: string;
+  value: TMedicationFrequency;
 }

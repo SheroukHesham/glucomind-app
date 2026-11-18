@@ -10,6 +10,7 @@ import {
 import { Text } from "./ui/text";
 import { Badge } from "./ui/badge";
 import { Timer } from "lucide-react-native";
+import { useColorScheme } from "nativewind";
 
 interface IProps {
   meal: string;
@@ -20,6 +21,7 @@ interface IProps {
 }
 
 const MealCards = ({ calories, cookingTime, cuisine, meal, name }: IProps) => {
+  const { colorScheme } = useColorScheme();
   return (
     <View className="gap-y-2">
       <Text variant={"lead"} className="capitalize ">
@@ -30,7 +32,10 @@ const MealCards = ({ calories, cookingTime, cuisine, meal, name }: IProps) => {
       <Card className="pt-3">
         <CardHeader className="gap-y-3 ">
           <Badge variant={"outline"} className="px-5">
-            <Timer className="text-white" strokeWidth={3} />
+            <Timer
+              size={16}
+              color={colorScheme === "dark" ? "#F4F7F4" : "#171C18"}
+            />
             <Text className="capitalize">{cookingTime}</Text>
           </Badge>
 
@@ -40,11 +45,11 @@ const MealCards = ({ calories, cookingTime, cuisine, meal, name }: IProps) => {
           {/* <Text className="capitalize font-semibold">{name}</Text> */}
           <View className="flex-row w-full justify-between gap-x-2 text-wrap">
             <CardDescription>
-              <b>Calories:</b> {calories}
+              <Text> Calories: {calories}</Text>
             </CardDescription>
             <CardDescription>
               {/* <b>Cooking Time:</b> {cookingTime} */}
-              <b>{cuisine} Cuisine</b>
+              {cuisine} Cuisine
             </CardDescription>
           </View>
           {/* <CardDescription className="mt-2">

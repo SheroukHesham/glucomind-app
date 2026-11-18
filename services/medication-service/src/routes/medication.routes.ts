@@ -156,6 +156,23 @@ export function createMedicationRouter(): Router {
     }
   });
 
+  router.get(
+    "/medication_details/:userId/:medicationId",
+    async (req, res): Promise<void> => {
+      try {
+        res.status(200).json(
+          await Medication.findOne({
+            userId: req.params.userId,
+            _id: req.params.medicationId,
+          }).lean(),
+        );
+      } catch (error) {
+        console.error("Error fetching medications:", error);
+        res.status(500).json({ error: "Internal server error" });
+      }
+    },
+  );
+
   // POST /add_medications/:userId
   //   { id?, name, frequency?, times: ["HH:mm", ...], dosage?, notes?, startDate?, endDate?,
   //     dayOfWeek?, dayOfMonth? }

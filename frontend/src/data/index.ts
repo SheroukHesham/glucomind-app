@@ -1,11 +1,14 @@
 import {
   DietaryRestriction,
   IEmergencyInfo,
+  IMedication,
   IRegisterInfo,
   IRegisterMedicalData,
+  ISelectMedicationFrequencyList,
   IUser,
   MedicalCondition,
 } from "@/interfaces";
+import { TMedicationFrequency } from "@/types";
 import { RegisterFormValues } from "@/validations";
 
 export const defaultUser: IUser = {
@@ -37,62 +40,62 @@ export const STEP_FIELDS: Record<number, (keyof RegisterFormValues)[]> = {
   5: ["emergencyContacts"],
 };
 
-export const REGISTER_INFO: IRegisterInfo[] = [
-  {
-    id: "username",
-    placeholder: "Enter your username",
-    name: "username",
-    label: "Username",
-  },
-  {
-    id: "email",
-    placeholder: "Enter your email address",
-    keyboard: "email-address",
-    name: "email",
-    label: "Email",
-    autocomplete: "email",
-  },
-  {
-    id: "password",
-    placeholder: "Enter your password",
-    name: "password",
-    label: "Password",
-  },
-];
+// export const REGISTER_INFO: IRegisterInfo[] = [
+//   {
+//     id: "username",
+//     placeholder: "Enter your username",
+//     name: "username",
+//     label: "Username",
+//   },
+//   {
+//     id: "email",
+//     placeholder: "Enter your email address",
+//     keyboard: "email-address",
+//     name: "email",
+//     label: "Email",
+//     autocomplete: "email",
+//   },
+//   {
+//     id: "password",
+//     placeholder: "Enter your password",
+//     name: "password",
+//     label: "Password",
+//   },
+// ];
 
-export const REGISTER_MEDICAL_DATA: IRegisterMedicalData[] = [
-  {
-    id: "age",
-    placeholder: "Enter your age",
-    name: "age",
-    label: "Age",
-    keyboard: "numeric",
-  },
-  {
-    id: "daily_calories",
-    placeholder: "Enter your daily calories",
-    name: "dailyCalories",
-    label: "Daily Calories",
-    keyboard: "numeric",
-  },
-];
+// export const REGISTER_MEDICAL_DATA: IRegisterMedicalData[] = [
+//   {
+//     id: "age",
+//     placeholder: "Enter your age",
+//     name: "age",
+//     label: "Age",
+//     keyboard: "numeric",
+//   },
+//   {
+//     id: "daily_calories",
+//     placeholder: "Enter your daily calories",
+//     name: "dailyCalories",
+//     label: "Daily Calories",
+//     keyboard: "numeric",
+//   },
+// ];
 
-export const REGISTER_EMERGENCY_INFO: IEmergencyInfo[] = [
-  {
-    id: "name",
-    placeholder: "Enter the name of your follower",
-    name: "name",
-    label: "Name",
-  },
+// export const REGISTER_EMERGENCY_INFO: IEmergencyInfo[] = [
+//   {
+//     id: "name",
+//     placeholder: "Enter the name of your follower",
+//     name: "name",
+//     label: "Name",
+//   },
 
-  {
-    id: "email",
-    placeholder: "Enter the email of your follower",
-    name: "email",
-    label: "Email",
-    keyboard: "email-address",
-  },
-];
+//   {
+//     id: "email",
+//     placeholder: "Enter the email of your follower",
+//     name: "email",
+//     label: "Email",
+//     keyboard: "email-address",
+//   },
+// ];
 
 export const MEDICAL_CONDITION_CATEGORIES = [
   "Cardiovascular",
@@ -463,3 +466,26 @@ export const MEAL_CATEGORIES: MealCategory[] = [
     ],
   },
 ];
+
+export const SELECT_MEDICATION_FREQUENCY_LIST: ISelectMedicationFrequencyList[] =
+  [
+    { value: "once", label: "Once" },
+    { value: "daily", label: "Daily" },
+    { value: "weekly", label: "Weekly" },
+    { value: "monthly", label: "Monthly" },
+    { value: "times_per_day", label: "Multiple Times a Day" },
+  ];
+
+export const EMPTY_MEDICATION: IMedication = {
+  _id: "",
+  frequency: "" as TMedicationFrequency,
+  name: "",
+  startDate: "",
+  times: [],
+  userId: "",
+  dayOfMonth: undefined,
+  dayOfWeek: undefined,
+  dosage: "",
+  endDate: "",
+  notes: "",
+};

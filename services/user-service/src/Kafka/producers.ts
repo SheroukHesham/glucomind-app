@@ -9,6 +9,11 @@ import {
   USER_SETTINGS_TOPIC,
   UserSettingsValue,
 } from "./contracts/user-settings";
+import {
+  COMMAND_TOPIC,
+  StepCommand,
+  StepPayloads,
+} from "./contracts/registration";
 
 const producer = createKafka("producer").producer();
 let connecting: Promise<void> | null = null;
@@ -31,13 +36,13 @@ async function send(topic: Topic, key: string, value: unknown): Promise<void> {
 }
 
 /** Consumed by medication-service when a user's medications are created. Throws on failure. */
-export async function sendMedicationEvents(
-  userId: string,
-  medication: unknown,
-): Promise<void> {
-  const event: MedicationCreationEvent = { userId, medication };
-  await send(TOPICS.MEDICATION_CREATION_EVENTS, userId, event);
-}
+// export async function sendMedicationEvents(
+//   userId: string,
+//   medication: unknown,
+// ): Promise<void> {
+//   const event: MedicationCreationEvent = { userId, medication };
+//   await send(TOPICS.MEDICATION_CREATION_EVENTS, userId, event);
+// }
 
 /**
  * Registers/updates a device token (value) or removes it (null).
@@ -56,6 +61,24 @@ export async function publishUserSettings(
   value: UserSettingsValue,
 ): Promise<void> {
   await send(USER_SETTINGS_TOPIC, userId, value);
+}
+
+export async function publishRegistrationCommand(command: StepCommand) {
+  if (command.step === "diet")
+    await send("registration.diet.command", command.registrationId, {
+      type: command.type,
+      payload: command.payload,
+    });
+}
+
+export async function publishRegistrationCompleted({
+  registrationId,
+  userId,
+}: {
+  registrationId: string;
+  userId: string;
+}) {
+  await send("registration.completed", userId, registrationId);
 }
 
 export async function disconnectProducer(): Promise<void> {

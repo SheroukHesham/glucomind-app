@@ -6,6 +6,7 @@ import { Text } from "./ui/text";
 import { IMedication } from "@/interfaces";
 import { daysMap, formatMedicationTime } from "../functions";
 import { Badge } from "./ui/badge";
+import { useColorScheme } from "nativewind";
 
 interface IProps {
   medication: IMedication;
@@ -17,6 +18,8 @@ const MedicationCard = ({ medication }: IProps) => {
   const { _id, frequency, name, times, dayOfMonth, dayOfWeek, dosage, notes } =
     medication;
 
+  const { colorScheme } = useColorScheme();
+
   const renderTimes = Array.isArray(times)
     ? times.map((time, idx) => {
         const { formattedTime } = formatMedicationTime(time);
@@ -27,7 +30,7 @@ const MedicationCard = ({ medication }: IProps) => {
             key={`${_id}-${idx}`}
             className="font-semibold px-3 border-background bg-card"
           >
-            <Timer className="text-foreground" />
+            <Timer color={colorScheme === "dark" ? "#F4F7F4" : "#171C18"} />
             <Text>{formattedTime}</Text>
           </Badge>
         );
@@ -38,7 +41,8 @@ const MedicationCard = ({ medication }: IProps) => {
     router.push({
       pathname: "/(tabs)/medication-details",
       params: {
-        medication: JSON.stringify(medication),
+        userId: medication.userId,
+        medicationId: medication._id,
       },
     });
   };
@@ -54,7 +58,7 @@ const MedicationCard = ({ medication }: IProps) => {
         <View className="flex-row items-center">
           {dosage && <Text className="font-semibold">{dosage}</Text>}
 
-          <Dot className="text-foreground" />
+          <Dot color={colorScheme === "dark" ? "#F4F7F4" : "#171C18"} />
 
           <Text className="capitalize font-semibold">
             {frequency === "times_per_day"

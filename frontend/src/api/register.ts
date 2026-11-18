@@ -11,17 +11,9 @@ export interface RegistrationFormInput {
   dailyCalories: number;
   medicalConditions?: string[];
   dietaryRestrictions?: string[];
-  likedMeals?: string[];
-  dislikedMeals?: string[];
+  likedMeals: string[];
+  dislikedMeals: string[];
   emergencyContacts?: { name: string; email: string }[];
-  /** The wizard has no medications step yet; the backend already accepts them. */
-  medications?: {
-    name: string;
-    time: string; // "HH:mm"
-    frequency?: "daily" | "weekly" | "monthly";
-    dayOfWeek?: number;
-    dayOfMonth?: number;
-  }[];
 }
 
 type RegistrationStatus = "PENDING" | "COMPLETED" | "FAILED";
@@ -111,7 +103,7 @@ export async function registerAccount(
         likedMeals: values.likedMeals ?? [],
         dislikedMeals: values.dislikedMeals ?? [],
         emergencyContacts: values.emergencyContacts ?? [],
-        medications: values.medications ?? [],
+        // medications: values.medications ?? [],
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
     });
