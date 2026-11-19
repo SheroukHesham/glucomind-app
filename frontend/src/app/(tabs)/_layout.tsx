@@ -2,7 +2,6 @@ import { Drawer } from "expo-router/drawer";
 import { useColorScheme } from "nativewind";
 
 import { THEME, type ColorScheme } from "../../lib/theme";
-import { Text } from "react-native";
 
 export default function TabLayout() {
   const { colorScheme } = useColorScheme();
@@ -83,6 +82,16 @@ export default function TabLayout() {
         options={{
           title: "Medication Details",
           drawerLabel: "Medication Details",
+          drawerItemStyle: {
+            display: "none",
+          },
+        }}
+      />
+      <Drawer.Screen
+        name="medication-form"
+        options={{
+          title: "Medication",
+          drawerLabel: "Medication",
           drawerItemStyle: {
             display: "none",
           },

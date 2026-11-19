@@ -7,8 +7,14 @@ import { Text } from "@/components/ui/text";
 import { Button } from "@/components/ui/button";
 import { IMedication } from "@/interfaces";
 import { daysMap, formatMedicationTime } from "../../functions";
-import EditMedicationForm from "@/components/EditMedicationForm";
-import { useGetMedicationDetails } from "@/lib/queries/medications";
+import MedicationForm from "@/components/EditMedicationForm";
+import {
+  useDeleteMedication,
+  useGetMedicationDetails,
+} from "@/lib/queries/medications";
+import Alert from "@/components/Alert";
+import Toast from "react-native-toast-message";
+import { DialogClose } from "@/components/ui/dialog";
 
 const MedicationDetails = () => {
   const { userId, medicationId } = useLocalSearchParams<{
@@ -35,9 +41,17 @@ const MedicationDetails = () => {
       </SafeAreaView>
     );
   }
-  console.log(medication);
   useEffect(() => {}, [medication]);
 
+  const deleteMedication = useDeleteMedication(userId, medicationId);
+  const onDeleteMedication = async () => {
+    try {
+      await deleteMedication.mutate();
+      router.back();
+    } catch (error) {
+      Toast.show({ type: "error", text1: error.response.error });
+    }
+  };
   if (isFetching) return <Text>Loading</Text>;
   if (!medication) return <Text>no medication</Text>;
 
@@ -68,9 +82,10 @@ const MedicationDetails = () => {
         nestedScrollEnabled
       >
         {editing ? (
-          <EditMedicationForm
+          <MedicationForm
             medication={medication}
             setIsEditing={setIsEditing}
+            formType="edit"
           />
         ) : (
           <View className="rounded-lg bg-secondary border border-border p-5  gap-y-3 ">
@@ -147,14 +162,22 @@ const MedicationDetails = () => {
               <Text>Edit Medication</Text>
             </Button>
 
-            <Button
-              variant="outline_destructive"
-              onPress={() => {
-                console.log("deleting");
-              }}
+            <Alert
+              title="Are You Sure You Want to Delete this Medication?"
+              triggerComponent={<Text>Delete Medication</Text>}
             >
-              <Text>Delete Medication</Text>
-            </Button>
+              <View className="flex-row w-full justify-between">
+                <DialogClose>
+                  <Text>Cancel</Text>
+                </DialogClose>
+                <Button
+                  variant={"destructive"}
+                  onPress={() => onDeleteMedication()}
+                >
+                  <Text> Yes, Delete</Text>
+                </Button>
+              </View>
+            </Alert>
           </>
         )}
       </ScrollView>

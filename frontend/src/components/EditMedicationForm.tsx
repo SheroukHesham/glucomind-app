@@ -28,9 +28,10 @@ import { useUpdateMedication } from "@/lib/queries/medications";
 interface IProps {
   medication: IMedication;
   setIsEditing: Dispatch<SetStateAction<boolean>>;
+  formType: "create" | "edit";
 }
 
-const EditMedicationForm = ({ medication, setIsEditing }: IProps) => {
+const MedicationForm = ({ medication, setIsEditing, formType }: IProps) => {
   const MAX_TIMES_PER_DAY = 11;
   const START = 2;
   const { times, endDate, startDate, _id, userId } = medication;
@@ -384,4 +385,4 @@ const EditMedicationForm = ({ medication, setIsEditing }: IProps) => {
   );
 };
 
-export default EditMedicationForm;
+export default MedicationForm;

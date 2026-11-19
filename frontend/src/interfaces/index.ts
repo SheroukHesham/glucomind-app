@@ -128,7 +128,8 @@ export interface MealPlan {
 }
 
 export interface IMedication {
-  _id: string;
+  _id?: string;
+  id?: string;
   userId: string;
   name: string;
   dosage?: string;

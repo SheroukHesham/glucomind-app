@@ -11,12 +11,15 @@
       "icon": "./assets/expo.icon"
     },
     "android": {
+      "package": "com.glucomind.myapp",
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#171c18",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
+
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -26,6 +29,7 @@
       "bundler": "metro"
     },
     "plugins": [
+      "expo-notifications",
       "expo-router",
       [
         "expo-splash-screen",

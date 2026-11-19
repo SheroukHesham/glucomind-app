@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "750851588760",
+    "project_id": "glucomind-57bc0",
+    "storage_bucket": "glucomind-57bc0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:750851588760:android:6ecb768084d73e747ec6ed",
+        "android_client_info": {
+          "package_name": "com.glucoMind"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARMrroozHGk59vtDX9sgspKj-ll1qb17M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:750851588760:android:9c112ce98b5b74b97ec6ed",
+        "android_client_info": {
+          "package_name": "com.glucomind.myapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARMrroozHGk59vtDX9sgspKj-ll1qb17M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:750851588760:android:49180bec03a0d7247ec6ed",
+        "android_client_info": {
+          "package_name": "com.glucomindfrontend2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARMrroozHGk59vtDX9sgspKj-ll1qb17M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

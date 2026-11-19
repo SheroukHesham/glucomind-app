@@ -81,3 +81,41 @@ export async function addUpdateMedication(
     throw error;
   }
 }
+export async function deleteMedication(
+  userId: string,
+  medicationId: string,
+): Promise<void> {
+  try {
+    const response = await fetch(
+      `${API.medication}/medications/${encodeURIComponent(userId)}/${encodeURIComponent(medicationId)}`,
+      {
+        method: "DELETE",
+        // headers: {
+        //   "Content-Type": "application/json",
+        //   Accept: "application/json",
+        // },
+      },
+    );
+
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      console.error("Delete medication failed:", {
+        status: response.status,
+        response: responseData,
+      });
+
+      throw new Error(responseData.error || "Failed to delete medication");
+    }
+
+    return responseData;
+  } catch (error) {
+    if (
+      error instanceof ApiError &&
+      (error.status === 404 || error.status === 500)
+    ) {
+    }
+
+    throw error;
+  }
+}

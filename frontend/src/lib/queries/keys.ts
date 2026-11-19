@@ -11,6 +11,6 @@ export const medicationKeys = {
   all: ["medication"] as const,
   getUserMedications: (userId: string) =>
     [...medicationKeys.all, "getUserMedications", userId] as const,
-  getMedicationDetails: (userId: string, medicationId: string) =>
+  getMedicationDetails: (userId: string, medicationId?: string) =>
     [...medicationKeys.all, "medication", medicationId] as const,
 };

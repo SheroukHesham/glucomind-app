@@ -478,10 +478,10 @@ export const SELECT_MEDICATION_FREQUENCY_LIST: ISelectMedicationFrequencyList[] 
 
 export const EMPTY_MEDICATION: IMedication = {
   _id: "",
-  frequency: "" as TMedicationFrequency,
+  frequency: "daily",
   name: "",
   startDate: "",
-  times: [],
+  times: ["08:00"],
   userId: "",
   dayOfMonth: undefined,
   dayOfWeek: undefined,

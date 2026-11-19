@@ -1,7 +1,6 @@
 import { Clock } from "lucide-react-native";
 import { Platform, View } from "react-native";
 import { Label } from "./ui/label";
-import { Controller, UseFormReturn } from "react-hook-form";
 import { Button } from "./ui/button";
 import { Text } from "./ui/text";
 import {
@@ -9,9 +8,10 @@ import {
   formatMedicationTime,
   timeStringToDate,
 } from "@/functions";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useColorScheme } from "nativewind";
 import { MedicationFormValues } from "@/validations";
+import { useWatch, UseFormReturn } from "react-hook-form";
 import DateTimePicker, {
   DateTimePickerAndroid,
   type DateTimePickerEvent,
@@ -28,16 +28,24 @@ const MedicationTimePicker = ({ form, timesPerDay }: IProps) => {
 
   const { colorScheme } = useColorScheme();
 
-  useEffect(() => {}, [form.watch("times")]);
+  // Subscribe to the times field so this component rerenders when it changes.
+  const times = useWatch({
+    control: form.control,
+    name: "times",
+  });
+
+  // Subscribe to frequency as well.
+  const frequency = useWatch({
+    control: form.control,
+    name: "frequency",
+  });
 
   function getTimeValue(index: number): Date {
-    const times = form.getValues("times");
-
-    return timeStringToDate(times[index] || "08:00");
+    return timeStringToDate(times?.[index] || "08:00");
   }
 
   function updateMedicationTime(index: number, date: Date) {
-    const updatedTimes = [...form.getValues("times")];
+    const updatedTimes = [...(times ?? [])];
 
     updatedTimes[index] = dateToTimeString(date);
 
@@ -84,18 +92,19 @@ const MedicationTimePicker = ({ form, timesPerDay }: IProps) => {
 
   return (
     <View className="gap-3">
-      <View className="flex-row items-center mb-2  gap-x-1 ">
+      <View className="flex-row items-center mb-2 gap-x-1">
         <Clock
           size={16}
           color={colorScheme === "dark" ? "#F4F7F4" : "#171C18"}
         />
+
         <Label className="text-lg">Scheduled Times</Label>
       </View>
 
-      {form.watch("frequency") !== "times_per_day" ? (
+      {frequency !== "times_per_day" ? (
         <Button variant="outline" onPress={() => openTimePicker(0)}>
           <Text>
-            {formatMedicationTime(form.watch("times")[0]).formattedTime || "-"}
+            {times?.[0] ? formatMedicationTime(times[0]).formattedTime : "-"}
           </Text>
         </Button>
       ) : (
@@ -107,10 +116,9 @@ const MedicationTimePicker = ({ form, timesPerDay }: IProps) => {
           >
             <Text>
               {`Dose ${index + 1}: ${
-                (form.watch("times")[index] &&
-                  formatMedicationTime(form.watch("times")[index])
-                    .formattedTime) ||
-                "   -"
+                times?.[index]
+                  ? formatMedicationTime(times[index]).formattedTime
+                  : "-"
               }`}
             </Text>
           </Button>
