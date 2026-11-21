@@ -60,40 +60,54 @@ function attachClientStream(server, hub, options = {}) {
       ws.isAlive = true;
     });
 
-    ws.on("message", (raw) => {
-      if (ws.isAuthenticated) return; // after auth the client has nothing to say
+    ws.onopen = async () => {
+      const token = await auth.currentUser?.getIdToken();
+      ws.send(JSON.stringify({ type: "auth", token }));
+    };
+    // on close (expiry or network drop): wait a moment, then open a new socket
 
-      let msg;
+    ws.on("message", async (raw) => {
+      if (ws.isAuthenticated || ws.authInProgress) return; // after auth the client has nothing to say
+      ws.authInProgress = true;
+
       try {
-        msg = JSON.parse(raw.toString());
-      } catch {
-        return reject();
+        let msg;
+        try {
+          msg = JSON.parse(raw.toString());
+        } catch {
+          return reject();
+        }
+        if (!msg || msg.type !== "auth") return reject();
+
+        const identity = await verifyAccessToken(msg.token);
+        if (!identity) return reject();
+
+        // The client may have disconnected while we were verifying: don't register a dead socket.
+        if (ws.readyState !== ws.OPEN) return;
+
+        if (hub.countFor(identity.userId) >= maxConnectionsPerUser) {
+          ws.close(CLOSE_TOO_MANY, "too many connections");
+          return;
+        }
+
+        clearTimeout(authTimer);
+        userId = identity.userId;
+        ws.isAuthenticated = true;
+        hub.subscribe(userId, ws);
+
+        // a connection must not outlive its token: the app reconnects with a fresh one
+        const msUntilExpiry = identity.expiresAtMs - Date.now();
+        if (msUntilExpiry < 2 ** 31 - 1) {
+          expiryTimer = setTimeout(
+            () => ws.close(CLOSE_UNAUTHORIZED, "token expired"),
+            Math.max(0, msUntilExpiry),
+          );
+        }
+
+        ws.send(JSON.stringify({ type: "ready" }));
+      } finally {
+        ws.authInProgress = false;
       }
-      if (!msg || msg.type !== "auth") return reject();
-
-      const identity = verifyAccessToken(msg.token);
-      if (!identity) return reject();
-
-      if (hub.countFor(identity.userId) >= maxConnectionsPerUser) {
-        ws.close(CLOSE_TOO_MANY, "too many connections");
-        return;
-      }
-
-      clearTimeout(authTimer);
-      userId = identity.userId;
-      ws.isAuthenticated = true;
-      hub.subscribe(userId, ws);
-
-      // a connection must not outlive its token: the app reconnects with a fresh one
-      const msUntilExpiry = identity.expiresAtMs - Date.now();
-      if (msUntilExpiry < 2 ** 31 - 1) {
-        expiryTimer = setTimeout(
-          () => ws.close(CLOSE_UNAUTHORIZED, "token expired"),
-          Math.max(0, msUntilExpiry),
-        );
-      }
-
-      ws.send(JSON.stringify({ type: "ready" }));
     });
 
     ws.on("close", () => {

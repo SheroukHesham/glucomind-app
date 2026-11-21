@@ -1,8 +1,7 @@
 const mongoose = require("mongoose");
 const { DateTime } = require("luxon");
 const { TIMEZONE } = require("./config");
-const { Cgm, CgmHistory } = require("./db"); // adjust if CgmHistory lives elsewhere
-const { GlucoseGenerator } = require("./sensor-simulator");
+const { Cgm, CgmHistory } = require("./db");
 
 const STEP_MINUTES = 5;
 
